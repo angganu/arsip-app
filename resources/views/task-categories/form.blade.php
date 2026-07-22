@@ -8,10 +8,9 @@
     <main class="app-card p-4 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h1 class="h4 mb-1">{{ $mode === 'edit' ? 'Edit Category' : 'Create Category' }}</h1>
-                <p class="text-light-emphasis small mb-0">Fill in the form below to save the category.</p>
+                <!-- <h1 class="h4 mb-1">{{ $mode === 'edit' ? 'Edit Category' : 'Create Category' }}</h1> -->
+                <p class="text-light small mb-0">Fill in the form below to save the category.</p>
             </div>
-            <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light btn-sm">Back</a>
         </div>
 
         <form method="POST" action="{{ $mode === 'edit' ? route('task-categories.update', $category) : route('task-categories.store') }}">
@@ -21,13 +20,13 @@
             @endif
 
             <div class="mb-3">
-                <label class="form-label">Code</label>
-                <input type="text" name="code" class="form-control" value="{{ old('code', $category->code) }}" placeholder="Optional">
+                <label class="form-label">Code <span class="text-danger">*</span></label>
+                <input type="text" name="code" class="form-control" value="{{ old('code', $category->code) }}" required>
                 @error('code') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Name</label>
+                <label class="form-label">Name <span class="text-danger">*</span></label>
                 <input type="text" name="name" class="form-control" value="{{ old('name', $category->name) }}" required>
                 @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
             </div>
@@ -43,6 +42,7 @@
                 <label class="form-check-label" for="isActive">Active</label>
             </div>
 
+            <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light">Back</a>
             <button type="submit" class="btn btn-app">Save</button>
         </form>
     </main>
