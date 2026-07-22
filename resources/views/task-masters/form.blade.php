@@ -131,7 +131,7 @@
             <hr>
             
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <label class="form-label mb-0">Task Details</label>
+                <label class="form-label mb-0">Task Details (<span id="detailRowsCount">{{ count($detailRows) }}</span>)</label>
                 <button type="button" id="addDetailRow" class="btn btn-sm btn-outline-light">Add</button>
             </div>
 
@@ -215,7 +215,7 @@
             </div>
 
             <div id="attachmentPreviewWrapper" class="mb-3 d-none">
-                <label class="form-label">Preview</label>
+                <label class="form-label">Preview Selected Images (<span id="attachmentsCount">0</span>)</label>
                 <div id="attachmentPreviewPanel" class="attachment-preview-grid"></div>
             </div>
 
@@ -233,11 +233,13 @@
             const hasScheduleInput = document.getElementById('hasSchedule');
             const scheduleFields = document.getElementById('scheduleFields');
             const detailRowsContainer = document.getElementById('detailRows');
+            const detailRowsCount = document.getElementById('detailRowsCount');
             const addDetailRowButton = document.getElementById('addDetailRow');
             const attachmentsInput = document.getElementById('attachments');
             const selectAttachmentsButton = document.getElementById('selectAttachmentsButton');
             const attachmentPreviewWrapper = document.getElementById('attachmentPreviewWrapper');
             const attachmentPreviewPanel = document.getElementById('attachmentPreviewPanel');
+            const attachmentsCount = document.getElementById('attachmentsCount');
             let selectedAttachmentFiles = [];
 
             if (!hasScheduleInput || !scheduleFields) {
@@ -286,6 +288,10 @@
             const renumberRows = function () {
                 const rows = detailRowsContainer.querySelectorAll('[data-detail-row]');
 
+                if (detailRowsCount) {
+                    detailRowsCount.textContent = String(rows.length);
+                }
+
                 rows.forEach(function (row, index) {
                     const number = row.querySelector('.detail-number');
                     if (number) {
@@ -328,6 +334,10 @@
 
                 attachmentPreviewPanel.innerHTML = '';
                 attachmentPreviewWrapper.classList.toggle('d-none', selectedAttachmentFiles.length === 0);
+
+                if (attachmentsCount) {
+                    attachmentsCount.textContent = String(selectedAttachmentFiles.length);
+                }
 
                 selectedAttachmentFiles.forEach(function (file, index) {
                     const reader = new FileReader();
