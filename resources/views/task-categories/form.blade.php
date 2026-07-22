@@ -42,8 +42,10 @@
                 <label class="form-check-label" for="isActive">Active</label>
             </div>
 
-            <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light">Back</a>
-            <button type="submit" class="btn btn-app">Save</button>
+            <div class="mt-4">
+                <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light">Back</a>
+                <button type="submit" class="btn btn-app">Save</button>
+            </div>
         </form>
     </main>
 @endsection

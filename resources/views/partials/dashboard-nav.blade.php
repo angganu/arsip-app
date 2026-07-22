@@ -12,9 +12,10 @@
     $pageTitle = $pageTitle ?: 'Arsip App';
 
     $isDashboardActive = request()->routeIs(['admin.dashboard', 'manager.dashboard']);
-    $isDocumentMenuActive = request()->routeIs(['task-categories.*']);
-    $isCreateDocumentActive = request()->routeIs('task-master.create');
-    $isListDocumentActive = request()->routeIs('task-master.index');
+    $isDocumentMenuActive = request()->routeIs(['task-categories.*', 'task-masters.*']);
+    $isCreateDocumentActive = request()->routeIs('task-masters.create');
+    $isListDocumentActive = request()->routeIs('task-masters.index');
+    $isTaskCategoryActive = request()->routeIs('task-categories.*');
 @endphp
 
 <nav class="navbar app-card mb-3 px-2 py-2 navbar-dark">
@@ -93,13 +94,13 @@
                     <div class="collapse mt-1 {{ $isDocumentMenuActive ? 'show' : '' }}" id="documentControllSubmenu">
                         <ul class="nav nav-pills flex-column ms-3 gap-1">
                             <li class="nav-item">
-                                <a class="nav-link {{ $isCreateDocumentActive ? 'active' : '' }}" href="{{ route('task-categories.create') }}">Create New</a>
+                                <a class="nav-link {{ $isCreateDocumentActive ? 'active' : '' }}" href="{{ route('task-masters.create') }}">Create New Task</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ $isListDocumentActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">Data List</a>
+                                <a class="nav-link {{ $isListDocumentActive ? 'active' : '' }}" href="{{ route('task-masters.index') }}">Task List</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ $isDocumentMenuActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">Document Categories</a>
+                                <a class="nav-link {{ $isTaskCategoryActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">Document Categories</a>
                             </li>
                         </ul>
                     </div>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskMasterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,4 +34,5 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
     Route::resource('task-categories', TaskCategoryController::class)->except(['show']);
+    Route::resource('task-masters', TaskMasterController::class);
 });

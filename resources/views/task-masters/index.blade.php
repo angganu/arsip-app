@@ -1,5 +1,15 @@
 @extends('layouts.app')
 
+@php
+    $intervalLabels = [
+        0 => 'No schedule',
+        1 => 'Day',
+        2 => 'Week',
+        3 => 'Month',
+        4 => 'Year',
+    ];
+@endphp
+
 @push('styles')
     <style>
         .pagination-dark .page-item .page-link {
@@ -27,45 +37,45 @@
             color: #6b7280;
         }
 
-        .category-card-list {
+        .task-card-list {
             display: grid;
             gap: 0.75rem;
         }
 
-        .category-card {
+        .task-card {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 0.9rem;
             padding: 1rem;
         }
 
-        .category-card__header {
+        .task-card__header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.75rem;
             margin-bottom: 0.75rem;
         }
 
-        .category-card__title {
+        .task-card__title {
             font-weight: 600;
             color: #f8fafc;
             margin-bottom: 0.2rem;
         }
 
-        .category-card__meta {
+        .task-card__meta {
             font-size: 0.85rem;
             color: #cbd5e1;
         }
 
-        .category-card__body {
+        .task-card__grid {
             display: grid;
-            gap: 0.45rem;
+            gap: 0.5rem;
             color: #e2e8f0;
             font-size: 0.95rem;
         }
 
-        .category-card__actions {
+        .task-card__actions {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
@@ -81,44 +91,44 @@
         }
 
         @media (min-width: 768px) {
-            .category-card-list {
+            .task-card-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
     </style>
 @endpush
 
-@section('title', 'Document Categories')
+@section('title', 'Document List')
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Document Categories'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Document List'])
 
     <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <p class="text-light small mb-0">Manage task categories for document handling.</p>
+                <p class="text-light small mb-0">Manage document planning data and schedules.</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel">
                     <i class="fas fa-filter"></i> Filter
                 </button>
-                <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+                <a href="{{ route('task-masters.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
             </div>
         </div>
 
         <div class="collapse filter-card" id="filterPanel">
-            <form method="GET" action="{{ route('task-categories.index') }}" class="row g-2 align-items-end">
+            <form method="GET" action="{{ route('task-masters.index') }}" class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
                     <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
-                    <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code, name, description">
+                    <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code, name, description, category">
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="status" class="form-label small text-light mb-1">Status</label>
+                    <label for="status" class="form-label small text-light mb-1">Schedule</label>
                     <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">All</option>
-                        <option value="active" {{ ($status ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ ($status ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="scheduled" {{ ($status ?? '') === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                        <option value="unscheduled" {{ ($status ?? '') === 'unscheduled' ? 'selected' : '' }}>Unscheduled</option>
                     </select>
                 </div>
 
@@ -132,7 +142,7 @@
 
                 <div class="col-12 col-md-2 d-flex gap-2 mt-3">
                     <button type="submit" class="btn btn-app btn-sm w-100">Apply</button>
-                    <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
+                    <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
                 </div>
             </form>
         </div>
@@ -141,35 +151,32 @@
             <div class="alert alert-success py-2 px-3 mb-3">{{ session('success') }}</div>
         @endif
 
-        <!-- <form method="GET" action="{{ route('task-categories.index') }}" class="d-flex align-items-center gap-2 mb-3">
-            <label for="per_page" class="form-label mb-0 small text-light-emphasis">Rows per page</label>
-            <select name="per_page" id="per_page" class="form-select form-select-sm w-auto bg-dark text-white border-secondary" onchange="this.form.submit()">
-                @foreach ([10, 25, 50, 100] as $size)
-                    <option value="{{ $size }}" {{ ($perPage ?? 10) == $size ? 'selected' : '' }}>{{ $size }}</option>
-                @endforeach
-            </select>
-        </form> -->
-
-        <div class="category-card-list">
-            @forelse ($categories as $category)
-                <div class="category-card">
-                    <div class="category-card__header mb-1">
+        <div class="task-card-list">
+            @forelse ($tasks as $task)
+                <div class="task-card">
+                    <div class="task-card__header">
                         <div>
-                            <div class="category-card__meta"><b>#{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</b> · {{ $category->code }}</div>
-                            <div class="category-card__title">{{ $category->name }}</div>
+                            <div class="task-card__meta"><b>#{{ $loop->iteration + ($tasks->currentPage() - 1) * $tasks->perPage() }}</b> · {{ $task->code }}</div>
+                            <div class="task-card__meta">{{ $task->category?->name ?: 'No category' }}</div>
                         </div>
-                        <span class="badge-status badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
-                            {{ $category->is_active ? 'Active' : 'Inactive' }}
+                        <span class="badge {{ $task->has_schedule ? 'bg-success' : 'bg-secondary' }}">
+                            {{ $task->has_schedule ? 'Scheduled' : 'No Schedule' }}
                         </span>
                     </div>
 
-                    <div class="category-card__body">
-                        <div class="text-light-emphasis small mb-0">{{ $category->description ?: '—' }}</div>
+                    <div class="task-card__grid">
+                        <div><strong>{{ $task->name }}</strong></div>
+                        <div><strong>Planning:</strong> {{ optional($task->date_planning_start)->format('Y-m-d') ?: '—' }} to {{ optional($task->date_planning_finish)->format('Y-m-d') ?: '—' }}</div>
+                        <div><strong>Duration:</strong> {{ $task->duration_planning ?? 0 }} day(s)</div>
+                        <div><strong>Interval:</strong> {{ $task->has_schedule ? 'Every '. $task->interval_value.' '.$intervalLabels[$task->interval_schedule] : 'No Schedule' }}</div>
+                        <div class="text-light-emphasis small">{{ $task->description ?: '—' }}</div>
                     </div>
+
                     <hr>
-                    <div class="category-card__actions">
-                        <a href="{{ route('task-categories.edit', $category) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                        <form action="{{ route('task-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($category->name) }}?')">
+                    <div class="task-card__actions">
+                        <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">View</a>
+                        <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                        <form action="{{ route('task-masters.destroy', $task) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($task->name) }}?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
@@ -177,13 +184,13 @@
                     </div>
                 </div>
             @empty
-                <div class="text-center text-light-emphasis py-3">No categories found.</div>
+                <div class="text-center text-light-emphasis py-3">No documents found.</div>
             @endforelse
         </div>
 
         <div class="mt-3 d-flex justify-content-center">
             <div class="pagination-dark">
-                {{ $categories->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest'])->links('pagination::bootstrap-4') }}
+                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest'])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </main>

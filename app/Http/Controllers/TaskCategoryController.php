@@ -9,9 +9,9 @@ class TaskCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = in_array((int) $request->input('per_page', 10), [10, 25, 50, 100], true)
-            ? (int) $request->input('per_page', 10)
-            : 10;
+        $perPage = in_array((int) $request->input('per_page', 5), [5, 10, 25, 50, 100], true)
+            ? (int) $request->input('per_page', 5)
+            : 5;
 
         $keyword = trim((string) $request->input('keyword', ''));
         $status = $request->input('status');
