@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,6 +16,14 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/change-password', [ProfileController::class, 'editPassword'])->name('password.edit');
+    Route::put('/change-password', [ProfileController::class, 'updatePassword'])->name('password.update');
+});
 
 Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::view('/manager/dashboard', 'manager.dashboard')->name('manager.dashboard');
