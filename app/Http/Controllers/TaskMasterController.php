@@ -7,6 +7,7 @@ use App\Models\TaskMaster;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TaskMasterController extends Controller
 {
@@ -63,6 +64,14 @@ class TaskMasterController extends Controller
             'categories' => $this->getFormCategories(),
             'intervalOptions' => array_keys(self::INTERVAL_OPTIONS),
             'selectedInterval' => null,
+            'detailRows' => old('details', [
+                [
+                    'activity' => '',
+                    'date_planning_start' => '',
+                    'date_planning_finish' => '',
+                    'description' => '',
+                ],
+            ]),
             'mode' => 'create',
         ]);
     }
@@ -80,8 +89,15 @@ class TaskMasterController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateTaskMaster($request);
+        $detailPayloads = $this->validateTaskDetails($request);
 
-        TaskMaster::create($data);
+        DB::transaction(function () use ($data, $detailPayloads) {
+            $taskMaster = TaskMaster::create($data);
+
+            if ($detailPayloads !== []) {
+                $taskMaster->details()->createMany($detailPayloads);
+            }
+        });
 
         return redirect()->route('task-masters.index')
             ->with('success', 'Document created successfully.');
@@ -89,11 +105,36 @@ class TaskMasterController extends Controller
 
     public function edit(TaskMaster $taskMaster)
     {
+        $taskMaster->load('details');
+
+        $detailRows = old('details');
+
+        if ($detailRows === null) {
+            $detailRows = $taskMaster->details->map(function ($detail) {
+                return [
+                    'activity' => $detail->activity,
+                    'date_planning_start' => optional($detail->date_planning_start)->format('Y-m-d\TH:i'),
+                    'date_planning_finish' => optional($detail->date_planning_finish)->format('Y-m-d\TH:i'),
+                    'description' => $detail->description,
+                ];
+            })->values()->all();
+        }
+
+        if ($detailRows === []) {
+            $detailRows = [[
+                'activity' => '',
+                'date_planning_start' => '',
+                'date_planning_finish' => '',
+                'description' => '',
+            ]];
+        }
+
         return view('task-masters.form', [
             'taskMaster' => $taskMaster,
             'categories' => $this->getFormCategories($taskMaster),
             'intervalOptions' => array_keys(self::INTERVAL_OPTIONS),
             'selectedInterval' => array_search((int) $taskMaster->interval_schedule, self::INTERVAL_OPTIONS, true) ?: null,
+            'detailRows' => $detailRows,
             'mode' => 'edit',
         ]);
     }
@@ -101,8 +142,17 @@ class TaskMasterController extends Controller
     public function update(Request $request, TaskMaster $taskMaster)
     {
         $data = $this->validateTaskMaster($request, $taskMaster);
+        $detailPayloads = $this->validateTaskDetails($request);
 
-        $taskMaster->update($data);
+        DB::transaction(function () use ($taskMaster, $data, $detailPayloads) {
+            $taskMaster->update($data);
+
+            $taskMaster->details()->delete();
+
+            if ($detailPayloads !== []) {
+                $taskMaster->details()->createMany($detailPayloads);
+            }
+        });
 
         return redirect()->route('task-masters.index')
             ->with('success', 'Document updated successfully.');
@@ -175,5 +225,57 @@ class TaskMasterController extends Controller
             4 => 'Years',
             default => 'No schedule',
         };
+    }
+
+    private function validateTaskDetails(Request $request): array
+    {
+        $detailRows = collect($request->input('details', []))
+            ->map(function ($detail) {
+                return [
+                    'activity' => trim((string) ($detail['activity'] ?? '')),
+                    'date_planning_start' => $detail['date_planning_start'] ?? null,
+                    'date_planning_finish' => $detail['date_planning_finish'] ?? null,
+                    'description' => $detail['description'] ?? null,
+                ];
+            })
+            ->filter(function ($detail) {
+                return $detail['activity'] !== ''
+                    || ! empty($detail['date_planning_start'])
+                    || ! empty($detail['date_planning_finish'])
+                    || trim((string) ($detail['description'] ?? '')) !== '';
+            })
+            ->values()
+            ->all();
+
+        $request->merge(['details' => $detailRows]);
+
+        $rules = [
+            'details' => ['nullable', 'array'],
+        ];
+
+        foreach (array_keys($detailRows) as $index) {
+            $rules["details.{$index}.activity"] = ['required', 'string', 'max:255'];
+            $rules["details.{$index}.date_planning_start"] = ['required', 'date'];
+            $rules["details.{$index}.date_planning_finish"] = ['required', 'date', "after_or_equal:details.{$index}.date_planning_start"];
+            $rules["details.{$index}.description"] = ['nullable', 'string'];
+        }
+
+        $validated = $request->validate($rules);
+
+        $details = $validated['details'] ?? [];
+
+        return collect($details)->map(function ($detail) {
+            $start = Carbon::parse($detail['date_planning_start']);
+            $finish = Carbon::parse($detail['date_planning_finish']);
+
+            return [
+                'code' => uniqid(),
+                'activity' => $detail['activity'],
+                'date_planning_start' => $start,
+                'date_planning_finish' => $finish,
+                'duration_planning' => $start->diffInHours($finish),
+                'description' => $detail['description'] ?? null,
+            ];
+        })->all();
     }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('task_details', function (Blueprint $table) {
             $table->id();
             $table->string('code', 100)->comment('Kode: GA-2603001/023');
+            $table->string('activity', 255)->comment('Nama aktivitas');
             $table->foreignId('task_master_id')->constrained()->cascadeOnDelete();
             $table->dateTime('date_planning_start')->nullable();
             $table->dateTime('date_planning_finish')->nullable();

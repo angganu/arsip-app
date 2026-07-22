@@ -2,6 +2,16 @@
 
 @section('title', $mode === 'edit' ? 'Edit Document' : 'Create Document')
 
+@push('styles')
+    <style>
+        .detail-card {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.85rem;
+            background: rgba(2, 6, 23, 0.2);
+        }
+    </style>
+@endpush
+
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => $mode === 'edit' ? 'Edit Document' : 'Create Document'])
 
@@ -78,6 +88,81 @@
                 @error('description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
             </div>
 
+            <hr>
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label mb-0">Task Details</label>
+                <button type="button" id="addDetailRow" class="btn btn-sm btn-outline-light">Add</button>
+            </div>
+
+            @error('details') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
+
+            <div id="detailRows" class="d-grid gap-3">
+                @forelse ($detailRows as $index => $detailRow)
+                    <div class="detail-card p-3" data-detail-row>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Detail #<span class="detail-number">{{ $index + 1 }}</span></h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Activity <span class="text-danger">*</span></label>
+                                <input type="text" name="details[{{ $index }}][activity]" class="form-control" value="{{ $detailRow['activity'] ?? '' }}">
+                                @error('details.' . $index . '.activity') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}">
+                                @error('details.' . $index . '.date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}">
+                                @error('details.' . $index . '.date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="details[{{ $index }}][description]" class="form-control" rows="2">{{ $detailRow['description'] ?? '' }}</textarea>
+                                @error('details.' . $index . '.description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="detail-card p-3" data-detail-row>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Detail #<span class="detail-number">1</span></h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Activity <span class="text-danger">*</span></label>
+                                <input type="text" name="details[0][activity]" class="form-control" value="">
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="details[0][date_planning_start]" class="form-control" value="">
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                                <input type="datetime-local" name="details[0][date_planning_finish]" class="form-control" value="">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="details[0][description]" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+
             <div class="mt-4">
                 <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">Back</a>
                 <button type="submit" class="btn btn-app">Save</button>
@@ -91,6 +176,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             const hasScheduleInput = document.getElementById('hasSchedule');
             const scheduleFields = document.getElementById('scheduleFields');
+            const detailRowsContainer = document.getElementById('detailRows');
+            const addDetailRowButton = document.getElementById('addDetailRow');
+
             if (!hasScheduleInput || !scheduleFields) {
                 return;
             }
@@ -101,6 +189,85 @@
 
             hasScheduleInput.addEventListener('change', toggleScheduleFields);
             toggleScheduleFields();
+
+            const createDetailRow = function (index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'detail-card p-3';
+                wrapper.setAttribute('data-detail-row', '');
+                wrapper.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Detail #<span class="detail-number">${index + 1}</span></h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Activity <span class="text-danger">*</span></label>
+                            <input type="text" name="details[${index}][activity]" class="form-control">
+                        </div>
+                        <div class="col-6 col-md-6">
+                            <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="details[${index}][date_planning_start]" class="form-control">
+                        </div>
+                        <div class="col-6 col-md-6">
+                            <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                            <input type="datetime-local" name="details[${index}][date_planning_finish]" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="details[${index}][description]" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                `;
+
+                return wrapper;
+            };
+
+            const renumberRows = function () {
+                const rows = detailRowsContainer.querySelectorAll('[data-detail-row]');
+
+                rows.forEach(function (row, index) {
+                    const number = row.querySelector('.detail-number');
+                    if (number) {
+                        number.textContent = String(index + 1);
+                    }
+
+                    const controls = row.querySelectorAll('input, textarea, select');
+                    controls.forEach(function (control) {
+                        const currentName = control.getAttribute('name');
+                        if (!currentName) {
+                            return;
+                        }
+
+                        control.setAttribute('name', currentName.replace(/details\[\d+\]/, `details[${index}]`));
+                    });
+                });
+            };
+
+            if (detailRowsContainer && addDetailRowButton) {
+                addDetailRowButton.addEventListener('click', function () {
+                    const nextIndex = detailRowsContainer.querySelectorAll('[data-detail-row]').length;
+                    detailRowsContainer.appendChild(createDetailRow(nextIndex));
+                    renumberRows();
+                });
+
+                detailRowsContainer.addEventListener('click', function (event) {
+                    const removeButton = event.target.closest('[data-remove-detail]');
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const rows = detailRowsContainer.querySelectorAll('[data-detail-row]');
+                    const row = removeButton.closest('[data-detail-row]');
+                    if (!row || rows.length <= 1) {
+                        return;
+                    }
+
+                    row.remove();
+                    renumberRows();
+                });
+
+                renumberRows();
+            }
         });
     </script>
 @endpush

@@ -16,6 +16,7 @@ class TaskDetail extends Model
 
     protected $fillable = [
         'code',
+        'activity',
         'task_master_id',
         'date_planning_start',
         'date_planning_finish',
