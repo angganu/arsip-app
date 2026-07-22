@@ -37,6 +37,11 @@
             background: rgba(15, 23, 42, 0.6);
         }
 
+        .attachment-preview-link {
+            display: block;
+            text-decoration: none;
+        }
+
         .attachment-preview-body {
             padding: 0.75rem;
         }
@@ -231,7 +236,9 @@
                     @foreach ($existingAttachments as $attachment)
                         <div class="attachment-preview-card" data-existing-attachment-row>
                             <input type="hidden" name="existing_attachment_ids[]" value="{{ $attachment->id }}">
-                            <img src="{{ route('task-attachments.preview', $attachment) }}" alt="{{ $attachment->original_name ?: $attachment->name }}" class="attachment-preview-image">
+                            <a href="{{ route('task-attachments.preview', $attachment) }}" target="_blank" rel="noopener noreferrer" class="attachment-preview-link">
+                                <img src="{{ route('task-attachments.preview', $attachment) }}" alt="{{ $attachment->original_name ?: $attachment->name }}" class="attachment-preview-image">
+                            </a>
                             <div class="attachment-preview-body">
                                 <div class="attachment-preview-name text-light mb-2">{{ $attachment->original_name ?: $attachment->name }}</div>
                                 <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-existing-attachment>Delete</button>
@@ -382,10 +389,13 @@
                 selectedAttachmentFiles.forEach(function (file, index) {
                     const reader = new FileReader();
                     reader.addEventListener('load', function (event) {
+                        const previewUrl = event.target?.result || '';
                         const card = document.createElement('div');
                         card.className = 'attachment-preview-card';
                         card.innerHTML = `
-                            <img src="${event.target?.result || ''}" alt="${file.name}" class="attachment-preview-image">
+                            <a href="${previewUrl}" target="_blank" rel="noopener noreferrer" class="attachment-preview-link">
+                                <img src="${previewUrl}" alt="${file.name}" class="attachment-preview-image">
+                            </a>
                             <div class="attachment-preview-body">
                                 <div class="attachment-preview-name text-light mb-2">${file.name}</div>
                                 <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-attachment="${index}">Delete</button>
