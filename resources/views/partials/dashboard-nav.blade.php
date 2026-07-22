@@ -1,0 +1,96 @@
+@props([
+    'dashboardRoute' => '#',
+])
+
+<nav class="navbar app-card mb-3 px-2 py-2 navbar-dark">
+    <div class="container-fluid p-0">
+        <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebarMenu"
+            aria-controls="sidebarMenu"
+            aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <span class="navbar-brand mb-0 h1 fs-6">Arsip App</span>
+
+        <div class="dropdown ms-auto">
+            <button
+                class="btn btn-link text-decoration-none text-white p-0 d-flex align-items-center gap-2"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <img
+                    src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=1f6feb&color=ffffff&size=64"
+                    alt="Profile Photo"
+                    width="34"
+                    height="34"
+                    class="rounded-circle border border-light border-opacity-50"
+                >
+                <span class="small fw-semibold d-none d-sm-inline">{{ auth()->user()->name }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Change Password</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-danger">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div
+        class="offcanvas offcanvas-start text-bg-dark border-end border-secondary"
+        tabindex="-1"
+        id="sidebarMenu"
+        aria-labelledby="sidebarMenuLabel"
+    >
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav nav-pills flex-column gap-1">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ $dashboardRoute }}">Dashboard</a>
+                </li>
+
+                <li class="nav-item">
+                    <button
+                        class="nav-link text-start w-100 d-flex justify-content-between align-items-center"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#documentControllSubmenu"
+                        aria-expanded="false"
+                        aria-controls="documentControllSubmenu"
+                    >
+                        <span>Document Controll</span>
+                        <span class="small">+</span>
+                    </button>
+                    <div class="collapse mt-1" id="documentControllSubmenu">
+                        <ul class="nav nav-pills flex-column ms-3 gap-1">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Create New</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Data List</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Report</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
