@@ -2,6 +2,13 @@
     'dashboardRoute' => '#',
 ])
 
+@php
+    $avatarPath = auth()->user()->profile?->avatar_path;
+    $avatarUrl = $avatarPath
+        ? asset('storage/' . $avatarPath)
+        : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=1f6feb&color=ffffff&size=64';
+@endphp
+
 <nav class="navbar app-card mb-3 px-2 py-2 navbar-dark">
     <div class="container-fluid p-0">
         <button
@@ -25,7 +32,7 @@
                 aria-expanded="false"
             >
                 <img
-                    src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=1f6feb&color=ffffff&size=64"
+                    src="{{ $avatarUrl }}"
                     alt="Profile Photo"
                     width="34"
                     height="34"

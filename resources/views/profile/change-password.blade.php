@@ -69,7 +69,7 @@
                 >
             </div>
 
-            <button type="submit" class="btn btn-app btn-lg w-100">Update Password</button>
+            <button type="submit" class="btn btn-app btn-lg w-100 mt-3">Update Password</button>
         </form>
     </main>
 @endsection
