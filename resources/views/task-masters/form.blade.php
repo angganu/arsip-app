@@ -9,6 +9,46 @@
             border-radius: 0.85rem;
             background: rgba(2, 6, 23, 0.2);
         }
+
+        #detailRows {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .attachment-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .attachment-preview-card {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.85rem;
+            background: rgba(2, 6, 23, 0.2);
+            overflow: hidden;
+        }
+
+        .attachment-preview-image {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            display: block;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .attachment-preview-body {
+            padding: 0.75rem;
+        }
+
+        .attachment-preview-name {
+            font-size: 0.8rem;
+            word-break: break-word;
+        }
+
+        .attachment-input-hidden {
+            display: none;
+        }
     </style>
 @endpush
 
@@ -22,7 +62,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ $mode === 'edit' ? route('task-masters.update', $taskMaster) : route('task-masters.store') }}">
+        <form method="POST" action="{{ $mode === 'edit' ? route('task-masters.update', $taskMaster) : route('task-masters.store') }}" enctype="multipart/form-data">
             @csrf
             @if ($mode === 'edit')
                 @method('PUT')
@@ -163,6 +203,22 @@
                 @endforelse
             </div>
 
+            <hr>
+
+            <div class="mb-3">
+                <label for="attachments" class="form-label">Attachments</label>
+                <input type="file" id="attachments" name="attachments[]" class="attachment-input-hidden" accept="image/*" multiple>
+                <button type="button" id="selectAttachmentsButton" class="btn btn-outline-light">Select Images</button>
+                <div class="form-text text-light">Upload one or more images. You can remove selected images before saving.</div>
+                @error('attachments') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                @error('attachments.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+            </div>
+
+            <div id="attachmentPreviewWrapper" class="mb-3 d-none">
+                <label class="form-label">Preview</label>
+                <div id="attachmentPreviewPanel" class="attachment-preview-grid"></div>
+            </div>
+
             <div class="mt-4">
                 <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">Back</a>
                 <button type="submit" class="btn btn-app">Save</button>
@@ -178,6 +234,11 @@
             const scheduleFields = document.getElementById('scheduleFields');
             const detailRowsContainer = document.getElementById('detailRows');
             const addDetailRowButton = document.getElementById('addDetailRow');
+            const attachmentsInput = document.getElementById('attachments');
+            const selectAttachmentsButton = document.getElementById('selectAttachmentsButton');
+            const attachmentPreviewWrapper = document.getElementById('attachmentPreviewWrapper');
+            const attachmentPreviewPanel = document.getElementById('attachmentPreviewPanel');
+            let selectedAttachmentFiles = [];
 
             if (!hasScheduleInput || !scheduleFields) {
                 return;
@@ -243,6 +304,67 @@
                 });
             };
 
+            const getFileSignature = function (file) {
+                return [file.name, file.size, file.lastModified, file.type].join(':');
+            };
+
+            const syncAttachmentInput = function () {
+                if (!attachmentsInput) {
+                    return;
+                }
+
+                const dataTransfer = new DataTransfer();
+                selectedAttachmentFiles.forEach(function (file) {
+                    dataTransfer.items.add(file);
+                });
+
+                attachmentsInput.files = dataTransfer.files;
+            };
+
+            const renderAttachmentPreviews = function () {
+                if (!attachmentsInput || !attachmentPreviewWrapper || !attachmentPreviewPanel) {
+                    return;
+                }
+
+                attachmentPreviewPanel.innerHTML = '';
+                attachmentPreviewWrapper.classList.toggle('d-none', selectedAttachmentFiles.length === 0);
+
+                selectedAttachmentFiles.forEach(function (file, index) {
+                    const reader = new FileReader();
+                    reader.addEventListener('load', function (event) {
+                        const card = document.createElement('div');
+                        card.className = 'attachment-preview-card';
+                        card.innerHTML = `
+                            <img src="${event.target?.result || ''}" alt="${file.name}" class="attachment-preview-image">
+                            <div class="attachment-preview-body">
+                                <div class="attachment-preview-name text-light mb-2">${file.name}</div>
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-attachment="${index}">Delete</button>
+                            </div>
+                        `;
+
+                        attachmentPreviewPanel.appendChild(card);
+                    });
+
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            const appendAttachmentFiles = function (files) {
+                const existingSignatures = new Set(selectedAttachmentFiles.map(getFileSignature));
+
+                files.forEach(function (file) {
+                    const signature = getFileSignature(file);
+
+                    if (!existingSignatures.has(signature)) {
+                        selectedAttachmentFiles.push(file);
+                        existingSignatures.add(signature);
+                    }
+                });
+
+                syncAttachmentInput();
+                renderAttachmentPreviews();
+            };
+
             if (detailRowsContainer && addDetailRowButton) {
                 addDetailRowButton.addEventListener('click', function () {
                     const nextIndex = detailRowsContainer.querySelectorAll('[data-detail-row]').length;
@@ -267,6 +389,42 @@
                 });
 
                 renumberRows();
+            }
+
+            if (attachmentsInput && attachmentPreviewPanel) {
+                if (selectAttachmentsButton) {
+                    selectAttachmentsButton.addEventListener('click', function () {
+                        attachmentsInput.click();
+                    });
+                }
+
+                attachmentsInput.addEventListener('change', function (event) {
+                    const files = Array.from(event.target.files || []);
+
+                    if (files.length === 0) {
+                        return;
+                    }
+
+                    appendAttachmentFiles(files);
+                });
+
+                attachmentPreviewPanel.addEventListener('click', function (event) {
+                    const removeButton = event.target.closest('[data-remove-attachment]');
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const removeIndex = Number(removeButton.getAttribute('data-remove-attachment'));
+                    selectedAttachmentFiles = selectedAttachmentFiles.filter(function (_file, index) {
+                        return index !== removeIndex;
+                    });
+
+                    syncAttachmentInput();
+                    renderAttachmentPreviews();
+                });
+
+                selectedAttachmentFiles = Array.from(attachmentsInput.files || []);
+                renderAttachmentPreviews();
             }
         });
     </script>

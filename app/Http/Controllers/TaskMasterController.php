@@ -90,12 +90,17 @@ class TaskMasterController extends Controller
     {
         $data = $this->validateTaskMaster($request);
         $detailPayloads = $this->validateTaskDetails($request);
+        $attachmentPayloads = $this->buildAttachmentPayloads($request);
 
-        DB::transaction(function () use ($data, $detailPayloads) {
+        DB::transaction(function () use ($data, $detailPayloads, $attachmentPayloads) {
             $taskMaster = TaskMaster::create($data);
 
             if ($detailPayloads !== []) {
                 $taskMaster->details()->createMany($detailPayloads);
+            }
+
+            if ($attachmentPayloads !== []) {
+                $taskMaster->attachments()->createMany($attachmentPayloads);
             }
         });
 
@@ -143,14 +148,19 @@ class TaskMasterController extends Controller
     {
         $data = $this->validateTaskMaster($request, $taskMaster);
         $detailPayloads = $this->validateTaskDetails($request);
+        $attachmentPayloads = $this->buildAttachmentPayloads($request);
 
-        DB::transaction(function () use ($taskMaster, $data, $detailPayloads) {
+        DB::transaction(function () use ($taskMaster, $data, $detailPayloads, $attachmentPayloads) {
             $taskMaster->update($data);
 
             $taskMaster->details()->delete();
 
             if ($detailPayloads !== []) {
                 $taskMaster->details()->createMany($detailPayloads);
+            }
+
+            if ($attachmentPayloads !== []) {
+                $taskMaster->attachments()->createMany($attachmentPayloads);
             }
         });
 
@@ -275,6 +285,29 @@ class TaskMasterController extends Controller
                 'date_planning_finish' => $finish,
                 'duration_planning' => $start->diffInHours($finish),
                 'description' => $detail['description'] ?? null,
+            ];
+        })->all();
+    }
+
+    private function buildAttachmentPayloads(Request $request): array
+    {
+        $validated = $request->validate([
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['image', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
+        ]);
+
+        $attachments = $validated['attachments'] ?? [];
+
+        return collect($attachments)->map(function ($file) {
+            $storedPath = $file->store('task-attachments', 'public');
+
+            return [
+                'name' => pathinfo($storedPath, PATHINFO_BASENAME),
+                'original_name' => $file->getClientOriginalName(),
+                'path' => $storedPath,
+                'extension' => $file->getClientOriginalExtension(),
+                'size' => (int) ceil($file->getSize() / 1024),
+                'created_by' => Auth::id(),
             ];
         })->all();
     }
