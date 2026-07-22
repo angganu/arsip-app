@@ -31,6 +31,9 @@
             background: var(--app-surface);
             backdrop-filter: blur(8px);
             box-shadow: 0 24px 48px rgba(2, 6, 23, 0.45);
+            position: relative;
+            overflow: visible;
+            isolation: isolate;
         }
 
         .app-card {
@@ -51,6 +54,30 @@
             background-color: #3b82f6;
             border-color: #3b82f6;
             color: #fff;
+        }
+
+        .modal,
+        .modal-backdrop {
+            position: fixed !important;
+        }
+
+        .modal {
+            z-index: 70000 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 60000 !important;
+            background-color: rgba(2, 6, 23, 0.85) !important;
+        }
+
+        .modal-dialog {
+            position: relative;
+            z-index: 70000 !important;
+        }
+
+        .modal-content {
+            position: relative;
+            z-index: 70000 !important;
         }
 
         @media (max-width: 576px) {

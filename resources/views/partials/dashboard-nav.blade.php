@@ -90,6 +90,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Data List</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('task-categories.index') }}">Document Categories</a>
+                            </li>
                         </ul>
                     </div>
                 </li>
