@@ -1,5 +1,34 @@
 @extends('layouts.app')
 
+@push('styles')
+    <style>
+        .pagination-dark .page-item .page-link {
+            background-color: #1f2937;
+            border-color: #374151;
+            color: #f8fafc;
+        }
+
+        .pagination-dark .page-item .page-link:hover,
+        .pagination-dark .page-item .page-link:focus {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #ffffff;
+        }
+
+        .pagination-dark .page-item.active .page-link {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .pagination-dark .page-item.disabled .page-link {
+            background-color: #111827;
+            border-color: #374151;
+            color: #6b7280;
+        }
+    </style>
+@endpush
+
 @section('title', 'Document Categories')
 
 @section('content')
@@ -17,6 +46,15 @@
         @if (session('success'))
             <div class="alert alert-success py-2 px-3 mb-3">{{ session('success') }}</div>
         @endif
+
+        <form method="GET" action="{{ route('task-categories.index') }}" class="d-flex align-items-center gap-2 mb-3">
+            <label for="per_page" class="form-label mb-0 small text-light-emphasis">Rows per page</label>
+            <select name="per_page" id="per_page" class="form-select form-select-sm w-auto bg-dark text-white border-secondary" onchange="this.form.submit()">
+                @foreach ([10, 25, 50, 100] as $size)
+                    <option value="{{ $size }}" {{ ($perPage ?? 10) == $size ? 'selected' : '' }}>{{ $size }}</option>
+                @endforeach
+            </select>
+        </form>
 
         <div class="table-responsive">
             <table class="table table-dark table-striped align-middle">
@@ -82,8 +120,10 @@
             </table>
         </div>
 
-        <div class="mt-3">
-            {{ $categories->links() }}
+        <div class="mt-3 d-flex justify-content-center">
+            <div class="pagination-dark">
+                {{ $categories->appends(['per_page' => $perPage])->links('pagination::bootstrap-4') }}
+            </div>
         </div>
     </main>
 @endsection

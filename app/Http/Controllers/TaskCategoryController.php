@@ -7,13 +7,18 @@ use Illuminate\Http\Request;
 
 class TaskCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = in_array((int) $request->input('per_page', 10), [10, 25, 50, 100], true)
+            ? (int) $request->input('per_page', 10)
+            : 10;
+
         $categories = TaskCategory::query()
             ->orderBy('name')
-            ->paginate(10);
+            ->paginate($perPage)
+            ->appends($request->only('per_page'));
 
-        return view('task-categories.index', compact('categories'));
+        return view('task-categories.index', compact('categories', 'perPage'));
     }
 
     public function create()
