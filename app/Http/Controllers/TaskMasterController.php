@@ -80,7 +80,15 @@ class TaskMasterController extends Controller
 
     public function show(TaskMaster $taskMaster)
     {
-        $taskMaster->load('category');
+        $taskMaster->load([
+            'category',
+            'details' => function ($query) {
+                $query->orderBy('date_planning_start')->orderBy('id');
+            },
+            'attachments' => function ($query) {
+                $query->orderBy('id');
+            },
+        ]);
 
         return view('task-masters.detail', [
             'taskMaster' => $taskMaster,
