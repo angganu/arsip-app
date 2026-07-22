@@ -26,6 +26,57 @@
             border-color: #374151;
             color: #6b7280;
         }
+
+        .category-card-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .category-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 0.9rem;
+            padding: 1rem;
+        }
+
+        .category-card__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-card__title {
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.2rem;
+        }
+
+        .category-card__meta {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        .category-card__body {
+            display: grid;
+            gap: 0.45rem;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .category-card__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.85rem;
+        }
+
+        @media (min-width: 768px) {
+            .category-card-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
     </style>
 @endpush
 
@@ -47,77 +98,64 @@
             <div class="alert alert-success py-2 px-3 mb-3">{{ session('success') }}</div>
         @endif
 
-        <form method="GET" action="{{ route('task-categories.index') }}" class="d-flex align-items-center gap-2 mb-3">
+        <!-- <form method="GET" action="{{ route('task-categories.index') }}" class="d-flex align-items-center gap-2 mb-3">
             <label for="per_page" class="form-label mb-0 small text-light-emphasis">Rows per page</label>
             <select name="per_page" id="per_page" class="form-select form-select-sm w-auto bg-dark text-white border-secondary" onchange="this.form.submit()">
                 @foreach ([10, 25, 50, 100] as $size)
                     <option value="{{ $size }}" {{ ($perPage ?? 10) == $size ? 'selected' : '' }}>{{ $size }}</option>
                 @endforeach
             </select>
-        </form>
+        </form> -->
 
-        <div class="table-responsive">
-            <table class="table table-dark table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($categories as $category)
-                        <tr>
-                            <td>{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }}</td>
-                            <td>{{ $category->code }}</td>
-                            <td>{{ $category->name }}</td>
-                            <td>{{ $category->description }}</td>
-                            <td>
-                                <span class="badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
-                                    {{ $category->is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('task-categories.edit', $category) }}" class="btn btn-sm btn-outline-light">Edit</a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal-{{ $category->id }}">
-                                        Delete
-                                    </button>
+        <div class="category-card-list">
+            @forelse ($categories as $category)
+                <div class="category-card">
+                    <div class="category-card__header">
+                        <div>
+                            <div class="category-card__title">{{ $category->name }}</div>
+                            <div class="category-card__meta">#{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }} · {{ $category->code }}</div>
+                        </div>
+                        <span class="badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
+                            {{ $category->is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
 
-                                    <div class="modal fade" id="deleteCategoryModal-{{ $category->id }}" tabindex="-1" aria-labelledby="deleteCategoryModalLabel-{{ $category->id }}" aria-hidden="true" data-bs-backdrop="false">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content bg-dark text-white">
-                                                <div class="modal-header border-secondary">
-                                                    <h5 class="modal-title" id="deleteCategoryModalLabel-{{ $category->id }}">Delete Category</h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p class="mb-0">Are you sure you want to delete <strong>{{ $category->name }}</strong>?</p>
-                                                </div>
-                                                <div class="modal-footer border-secondary">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <form action="{{ route('task-categories.destroy', $category) }}" method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="category-card__body">
+                        <div><strong>Description:</strong> {{ $category->description ?: '—' }}</div>
+                    </div>
+                    <hr>
+                    <div class="category-card__actions">
+                        <a href="{{ route('task-categories.edit', $category) }}" class="btn btn-sm btn-outline-light">Edit</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal-{{ $category->id }}">
+                            Delete
+                        </button>
+                    </div>
+
+                    <div class="modal fade" id="deleteCategoryModal-{{ $category->id }}" tabindex="-1" aria-labelledby="deleteCategoryModalLabel-{{ $category->id }}" aria-hidden="true" data-bs-backdrop="false">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content bg-dark text-white">
+                                <div class="modal-header border-secondary">
+                                    <h5 class="modal-title" id="deleteCategoryModalLabel-{{ $category->id }}">Delete Category</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-light-emphasis">No categories found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                <div class="modal-body">
+                                    <p class="mb-0">Are you sure you want to delete <strong>{{ $category->name }}</strong>?</p>
+                                </div>
+                                <div class="modal-footer border-secondary">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ route('task-categories.destroy', $category) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center text-light-emphasis py-3">No categories found.</div>
+            @endforelse
         </div>
 
         <div class="mt-3 d-flex justify-content-center">
