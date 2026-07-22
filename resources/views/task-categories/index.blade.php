@@ -83,15 +83,15 @@
 @section('title', 'Document Categories')
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard')])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Document Categories'])
 
-    <main class="app-card p-4 flex-grow-1">
+    <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h1 class="h4 mb-1">Document Categories</h1>
-                <p class="text-light-emphasis small mb-0">Manage task categories for document handling.</p>
+                <!-- <h1 class="h4 mb-1">Document Categories</h1> -->
+                <p class="text-light small mb-0">Manage task categories for document handling.</p>
             </div>
-            <a href="{{ route('task-categories.create') }}" class="btn btn-app">Create New</a>
+            <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
         </div>
 
         @if (session('success'))
@@ -110,18 +110,18 @@
         <div class="category-card-list">
             @forelse ($categories as $category)
                 <div class="category-card">
-                    <div class="category-card__header">
+                    <div class="category-card__header mb-1">
                         <div>
-                            <div class="category-card__title">{{ $category->name }}</div>
                             <div class="category-card__meta">#{{ $loop->iteration + ($categories->currentPage() - 1) * $categories->perPage() }} · {{ $category->code }}</div>
+                            <div class="category-card__title">{{ $category->name }}</div>
                         </div>
-                        <span class="badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
+                        <span class="badge-status badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
                             {{ $category->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
 
                     <div class="category-card__body">
-                        <div><strong>Description:</strong> {{ $category->description ?: '—' }}</div>
+                        <div class="text-light-emphasis small mb-0">{{ $category->description ?: '—' }}</div>
                     </div>
                     <hr>
                     <div class="category-card__actions">

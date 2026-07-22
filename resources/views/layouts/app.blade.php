@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Arsip App')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
         :root {
             --app-primary: #1f6feb;
@@ -80,6 +81,14 @@
             z-index: 70000 !important;
         }
 
+        .nav-link {
+            color: #f8fafc;
+        }
+
+        .badge-status {
+            margin-top: -25px;
+        }
+
         @media (max-width: 576px) {
             .app-shell {
                 min-height: 100svh;
@@ -93,7 +102,7 @@
     @stack('styles')
 </head>
 <body>
-    <div class="app-shell d-flex flex-column p-3 p-sm-4">
+    <div class="app-shell d-flex flex-column p-1 p-sm-4">
         @yield('content')
     </div>
 

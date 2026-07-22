@@ -3,7 +3,7 @@
 @section('title', $mode === 'edit' ? 'Edit Document Category' : 'Create Document Category')
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard')])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => $mode === 'edit' ? 'Edit Document Category' : 'Create Document Category'])
 
     <main class="app-card p-4 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">

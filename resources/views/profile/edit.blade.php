@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute])
+    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute, 'pageTitle' => 'Profile'])
 
     {{-- <header class="app-card p-4">
         <p class="text-uppercase small text-info mb-1">Account</p>

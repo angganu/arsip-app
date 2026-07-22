@@ -3,7 +3,7 @@
 @section('title', 'Administrator Dashboard')
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard')])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Dashboard'])
 
     {{-- <header class="app-card p-4">
         <p class="text-uppercase small text-warning mb-1">Administrator Area</p>

@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute])
+    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute, 'pageTitle' => 'Change Password'])
 
     {{-- <header class="app-card p-4">
         <p class="text-uppercase small text-warning mb-1">Security</p>
