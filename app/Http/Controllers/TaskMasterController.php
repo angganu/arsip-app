@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\TaskCategory;
+use App\Models\TaskAttachment;
 use App\Models\TaskMaster;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TaskMasterController extends Controller
 {
@@ -86,6 +88,15 @@ class TaskMasterController extends Controller
         ]);
     }
 
+    public function previewAttachment(TaskAttachment $attachment)
+    {
+        if (! $attachment->path || ! Storage::disk('public')->exists($attachment->path)) {
+            abort(404);
+        }
+
+        return response()->file(Storage::disk('public')->path($attachment->path));
+    }
+
     public function store(Request $request)
     {
         $data = $this->validateTaskMaster($request);
@@ -110,7 +121,7 @@ class TaskMasterController extends Controller
 
     public function edit(TaskMaster $taskMaster)
     {
-        $taskMaster->load('details');
+        $taskMaster->load('details', 'attachments');
 
         $detailRows = old('details');
 
@@ -149,8 +160,9 @@ class TaskMasterController extends Controller
         $data = $this->validateTaskMaster($request, $taskMaster);
         $detailPayloads = $this->validateTaskDetails($request);
         $attachmentPayloads = $this->buildAttachmentPayloads($request);
+        $keptAttachmentIds = $this->validateExistingAttachmentIds($request, $taskMaster);
 
-        DB::transaction(function () use ($taskMaster, $data, $detailPayloads, $attachmentPayloads) {
+        DB::transaction(function () use ($taskMaster, $data, $detailPayloads, $attachmentPayloads, $keptAttachmentIds) {
             $taskMaster->update($data);
 
             $taskMaster->details()->delete();
@@ -158,6 +170,8 @@ class TaskMasterController extends Controller
             if ($detailPayloads !== []) {
                 $taskMaster->details()->createMany($detailPayloads);
             }
+
+            $this->deleteRemovedAttachments($taskMaster, $keptAttachmentIds);
 
             if ($attachmentPayloads !== []) {
                 $taskMaster->attachments()->createMany($attachmentPayloads);
@@ -310,5 +324,44 @@ class TaskMasterController extends Controller
                 'created_by' => Auth::id(),
             ];
         })->all();
+    }
+
+    private function validateExistingAttachmentIds(Request $request, TaskMaster $taskMaster): array
+    {
+        $validated = $request->validate([
+            'existing_attachment_ids' => ['nullable', 'array'],
+            'existing_attachment_ids.*' => ['integer'],
+        ]);
+
+        $attachmentIds = collect($validated['existing_attachment_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $allowedIds = $taskMaster->attachments()->pluck('id');
+
+        if ($attachmentIds->diff($allowedIds)->isNotEmpty()) {
+            abort(422, 'Invalid attachment selection.');
+        }
+
+        return $attachmentIds->all();
+    }
+
+    private function deleteRemovedAttachments(TaskMaster $taskMaster, array $keptAttachmentIds): void
+    {
+        $attachmentsToDelete = $taskMaster->attachments()
+            ->when($keptAttachmentIds !== [], function ($query) use ($keptAttachmentIds) {
+                $query->whereNotIn('id', $keptAttachmentIds);
+            }, function ($query) {
+                $query->whereNotNull('id');
+            })
+            ->get();
+
+        foreach ($attachmentsToDelete as $attachment) {
+            if ($attachment->path) {
+                Storage::disk('public')->delete($attachment->path);
+            }
+
+            $attachment->delete();
+        }
     }
 }

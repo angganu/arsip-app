@@ -53,6 +53,15 @@
 @endpush
 
 @section('content')
+    @php
+        $keptAttachmentIds = collect(old('existing_attachment_ids', $mode === 'edit' ? $taskMaster->attachments->pluck('id')->all() : []))
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $existingAttachments = $mode === 'edit'
+            ? $taskMaster->attachments->whereIn('id', $keptAttachmentIds)->values()
+            : collect();
+    @endphp
+
     @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => $mode === 'edit' ? 'Edit Document' : 'Create Document'])
 
     <main class="app-card p-4 flex-grow-1">
@@ -210,8 +219,26 @@
                 <input type="file" id="attachments" name="attachments[]" class="attachment-input-hidden" accept="image/*" multiple>
                 <button type="button" id="selectAttachmentsButton" class="btn btn-outline-light">Select Images</button>
                 <div class="form-text text-light">Upload one or more images. You can remove selected images before saving.</div>
+                @error('existing_attachment_ids') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                @error('existing_attachment_ids.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 @error('attachments') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 @error('attachments.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+            </div>
+
+            <div id="existingAttachmentWrapper" class="mb-3 {{ $existingAttachments->isEmpty() ? 'd-none' : '' }}">
+                <label class="form-label">Uploaded Images (<span id="existingAttachmentsCount">{{ $existingAttachments->count() }}</span>)</label>
+                <div id="existingAttachmentPanel" class="attachment-preview-grid">
+                    @foreach ($existingAttachments as $attachment)
+                        <div class="attachment-preview-card" data-existing-attachment-row>
+                            <input type="hidden" name="existing_attachment_ids[]" value="{{ $attachment->id }}">
+                            <img src="{{ route('task-attachments.preview', $attachment) }}" alt="{{ $attachment->original_name ?: $attachment->name }}" class="attachment-preview-image">
+                            <div class="attachment-preview-body">
+                                <div class="attachment-preview-name text-light mb-2">{{ $attachment->original_name ?: $attachment->name }}</div>
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-existing-attachment>Delete</button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
             <div id="attachmentPreviewWrapper" class="mb-3 d-none">
@@ -237,6 +264,9 @@
             const addDetailRowButton = document.getElementById('addDetailRow');
             const attachmentsInput = document.getElementById('attachments');
             const selectAttachmentsButton = document.getElementById('selectAttachmentsButton');
+            const existingAttachmentWrapper = document.getElementById('existingAttachmentWrapper');
+            const existingAttachmentPanel = document.getElementById('existingAttachmentPanel');
+            const existingAttachmentsCount = document.getElementById('existingAttachmentsCount');
             const attachmentPreviewWrapper = document.getElementById('attachmentPreviewWrapper');
             const attachmentPreviewPanel = document.getElementById('attachmentPreviewPanel');
             const attachmentsCount = document.getElementById('attachmentsCount');
@@ -312,6 +342,16 @@
 
             const getFileSignature = function (file) {
                 return [file.name, file.size, file.lastModified, file.type].join(':');
+            };
+
+            const syncExistingAttachmentCount = function () {
+                if (!existingAttachmentPanel || !existingAttachmentWrapper || !existingAttachmentsCount) {
+                    return;
+                }
+
+                const count = existingAttachmentPanel.querySelectorAll('[data-existing-attachment-row]').length;
+                existingAttachmentsCount.textContent = String(count);
+                existingAttachmentWrapper.classList.toggle('d-none', count === 0);
             };
 
             const syncAttachmentInput = function () {
@@ -435,6 +475,25 @@
 
                 selectedAttachmentFiles = Array.from(attachmentsInput.files || []);
                 renderAttachmentPreviews();
+            }
+
+            if (existingAttachmentPanel) {
+                existingAttachmentPanel.addEventListener('click', function (event) {
+                    const removeButton = event.target.closest('[data-remove-existing-attachment]');
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const row = removeButton.closest('[data-existing-attachment-row]');
+                    if (!row) {
+                        return;
+                    }
+
+                    row.remove();
+                    syncExistingAttachmentCount();
+                });
+
+                syncExistingAttachmentCount();
             }
         });
     </script>

@@ -34,5 +34,7 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
     Route::resource('task-categories', TaskCategoryController::class)->except(['show']);
+    Route::get('task-attachments/{attachment}/preview', [TaskMasterController::class, 'previewAttachment'])
+        ->name('task-attachments.preview');
     Route::resource('task-masters', TaskMasterController::class);
 });
