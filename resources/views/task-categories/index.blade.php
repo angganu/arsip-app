@@ -72,6 +72,14 @@
             margin-top: 0.85rem;
         }
 
+        .filter-card {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.9rem;
+            padding: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
         @media (min-width: 768px) {
             .category-card-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -88,10 +96,45 @@
     <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <!-- <h1 class="h4 mb-1">Document Categories</h1> -->
                 <p class="text-light small mb-0">Manage task categories for document handling.</p>
             </div>
-            <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+            </div>
+        </div>
+
+        <div class="collapse filter-card" id="filterPanel">
+            <form method="GET" action="{{ route('task-categories.index') }}" class="row g-2 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
+                    <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code, name, description">
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="status" class="form-label small text-light mb-1">Status</label>
+                    <select name="status" id="status" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="active" {{ ($status ?? '') === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ ($status ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="sort_by" class="form-label small text-light mb-1">Sort by</label>
+                    <select name="sort_by" id="sort_by" class="form-select form-select-sm">
+                        <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
+                        <option value="oldest" {{ ($sortBy ?? 'latest') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2 d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-app btn-sm w-100">Apply</button>
+                    <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
+                </div>
+            </form>
         </div>
 
         @if (session('success'))
@@ -140,7 +183,7 @@
 
         <div class="mt-3 d-flex justify-content-center">
             <div class="pagination-dark">
-                {{ $categories->appends(['per_page' => $perPage])->links('pagination::bootstrap-4') }}
+                {{ $categories->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest'])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </main>

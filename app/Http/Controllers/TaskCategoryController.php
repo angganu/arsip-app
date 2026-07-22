@@ -13,12 +13,34 @@ class TaskCategoryController extends Controller
             ? (int) $request->input('per_page', 10)
             : 10;
 
-        $categories = TaskCategory::query()
-            ->orderBy('name')
-            ->paginate($perPage)
-            ->appends($request->only('per_page'));
+        $keyword = trim((string) $request->input('keyword', ''));
+        $status = $request->input('status');
+        $sortBy = $request->input('sort_by', 'latest');
 
-        return view('task-categories.index', compact('categories', 'perPage'));
+        $query = TaskCategory::query();
+
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('code', 'like', "%{$keyword}%")
+                    ->orWhere('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        if (in_array($status, ['active', 'inactive'], true)) {
+            $query->where('is_active', $status === 'active');
+        }
+
+        if ($sortBy === 'oldest') {
+            $query->orderBy('created_at', 'asc')->orderBy('name', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc')->orderBy('name', 'asc');
+        }
+
+        $categories = $query->paginate($perPage)
+            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by']));
+
+        return view('task-categories.index', compact('categories', 'perPage', 'keyword', 'status', 'sortBy'));
     }
 
     public function create()
