@@ -8,6 +8,7 @@ use App\Models\TaskMaster;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -180,6 +181,8 @@ class TaskMasterController extends Controller
         if ($detailRows === null) {
             $detailRows = $taskMaster->details->map(function ($detail) {
                 return [
+                    'id' => $detail->id,
+                    'status' => (int) $detail->status,
                     'activity' => $detail->activity,
                     'date_planning_start' => optional($detail->date_planning_start)->format('Y-m-d\TH:i'),
                     'date_planning_finish' => optional($detail->date_planning_finish)->format('Y-m-d\TH:i'),
@@ -190,6 +193,8 @@ class TaskMasterController extends Controller
 
         if ($detailRows === []) {
             $detailRows = [[
+                'id' => null,
+                'status' => 0,
                 'activity' => '',
                 'date_planning_start' => '',
                 'date_planning_finish' => '',
@@ -210,17 +215,60 @@ class TaskMasterController extends Controller
     public function update(Request $request, TaskMaster $taskMaster)
     {
         $data = $this->validateTaskMaster($request, $taskMaster);
-        $detailPayloads = $this->validateTaskDetails($request);
+        $detailPayloads = $this->validateTaskDetails($request, $taskMaster);
         $attachmentPayloads = $this->buildAttachmentPayloads($request);
         $keptAttachmentIds = $this->validateExistingAttachmentIds($request, $taskMaster);
 
         DB::transaction(function () use ($taskMaster, $data, $detailPayloads, $attachmentPayloads, $keptAttachmentIds) {
             $taskMaster->update($data);
 
-            $taskMaster->details()->delete();
+            $existingDetails = $taskMaster->details()->get()->keyBy('id');
+            $submittedIds = collect($detailPayloads)
+                ->pluck('id')
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->values();
 
-            if ($detailPayloads !== []) {
-                $taskMaster->details()->createMany($detailPayloads);
+            $lockedIds = $existingDetails
+                ->filter(fn ($detail) => (int) $detail->status === 2)
+                ->keys()
+                ->map(fn ($id) => (int) $id)
+                ->values();
+
+            if ($lockedIds->diff($submittedIds)->isNotEmpty()) {
+                abort(422, 'Completed task details cannot be removed.');
+            }
+
+            $editableExistingIds = $existingDetails
+                ->filter(fn ($detail) => (int) $detail->status !== 2)
+                ->keys()
+                ->map(fn ($id) => (int) $id);
+
+            $idsToDelete = $editableExistingIds->diff($submittedIds);
+
+            if ($idsToDelete->isNotEmpty()) {
+                $taskMaster->details()->whereIn('id', $idsToDelete->all())->delete();
+            }
+
+            foreach ($detailPayloads as $detailPayload) {
+                $detailId = (int) ($detailPayload['id'] ?? 0);
+
+                if ($detailId > 0) {
+                    $existingDetail = $existingDetails->get($detailId);
+
+                    if (! $existingDetail) {
+                        abort(422, 'Invalid task detail selection.');
+                    }
+
+                    if ((int) $existingDetail->status === 2) {
+                        continue;
+                    }
+
+                    $existingDetail->update(Arr::except($detailPayload, ['id', 'status', 'code']));
+                    continue;
+                }
+
+                $taskMaster->details()->create(Arr::except($detailPayload, ['id', 'status']));
             }
 
             $this->deleteRemovedAttachments($taskMaster, $keptAttachmentIds);
@@ -303,11 +351,13 @@ class TaskMasterController extends Controller
         };
     }
 
-    private function validateTaskDetails(Request $request): array
+    private function validateTaskDetails(Request $request, ?TaskMaster $taskMaster = null): array
     {
         $detailRows = collect($request->input('details', []))
             ->map(function ($detail) {
                 return [
+                    'id' => isset($detail['id']) ? (int) $detail['id'] : null,
+                    'status' => isset($detail['status']) ? (int) $detail['status'] : 0,
                     'activity' => trim((string) ($detail['activity'] ?? '')),
                     'date_planning_start' => $detail['date_planning_start'] ?? null,
                     'date_planning_finish' => $detail['date_planning_finish'] ?? null,
@@ -315,7 +365,8 @@ class TaskMasterController extends Controller
                 ];
             })
             ->filter(function ($detail) {
-                return $detail['activity'] !== ''
+                return ($detail['id'] ?? 0) > 0
+                    || $detail['activity'] !== ''
                     || ! empty($detail['date_planning_start'])
                     || ! empty($detail['date_planning_finish'])
                     || trim((string) ($detail['description'] ?? '')) !== '';
@@ -330,6 +381,19 @@ class TaskMasterController extends Controller
         ];
 
         foreach (array_keys($detailRows) as $index) {
+            $isLockedRow = ((int) ($detailRows[$index]['status'] ?? 0)) === 2;
+
+            $rules["details.{$index}.id"] = ['nullable', 'integer'];
+            $rules["details.{$index}.status"] = ['nullable', 'integer'];
+
+            if ($isLockedRow) {
+                $rules["details.{$index}.activity"] = ['nullable', 'string', 'max:255'];
+                $rules["details.{$index}.date_planning_start"] = ['nullable', 'date'];
+                $rules["details.{$index}.date_planning_finish"] = ['nullable', 'date', "after_or_equal:details.{$index}.date_planning_start"];
+                $rules["details.{$index}.description"] = ['nullable', 'string'];
+                continue;
+            }
+
             $rules["details.{$index}.activity"] = ['required', 'string', 'max:255'];
             $rules["details.{$index}.date_planning_start"] = ['required', 'date'];
             $rules["details.{$index}.date_planning_finish"] = ['required', 'date', "after_or_equal:details.{$index}.date_planning_start"];
@@ -340,18 +404,48 @@ class TaskMasterController extends Controller
 
         $details = $validated['details'] ?? [];
 
+        if ($taskMaster) {
+            $allowedDetailIds = $taskMaster->details()->pluck('id')->map(fn ($id) => (int) $id);
+
+            $submittedDetailIds = collect($details)
+                ->pluck('id')
+                ->filter()
+                ->map(fn ($id) => (int) $id);
+
+            if ($submittedDetailIds->diff($allowedDetailIds)->isNotEmpty()) {
+                abort(422, 'Invalid task detail selection.');
+            }
+        }
+
         return collect($details)->map(function ($detail) {
+            $detailId = isset($detail['id']) ? (int) $detail['id'] : 0;
+            $detailStatus = isset($detail['status']) ? (int) $detail['status'] : 0;
+
+            if ($detailId > 0 && $detailStatus === 2) {
+                return [
+                    'id' => $detailId,
+                    'status' => $detailStatus,
+                ];
+            }
+
             $start = Carbon::parse($detail['date_planning_start']);
             $finish = Carbon::parse($detail['date_planning_finish']);
 
-            return [
-                'code' => uniqid(),
+            $payload = [
+                'id' => $detailId > 0 ? $detailId : null,
+                'status' => $detailStatus,
                 'activity' => $detail['activity'],
                 'date_planning_start' => $start,
                 'date_planning_finish' => $finish,
                 'duration_planning' => $start->diffInHours($finish),
                 'description' => $detail['description'] ?? null,
             ];
+
+            if ($detailId === 0) {
+                $payload['code'] = uniqid();
+            }
+
+            return $payload;
         })->all();
     }
 

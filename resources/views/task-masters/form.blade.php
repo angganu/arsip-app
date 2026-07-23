@@ -54,6 +54,22 @@
         .attachment-input-hidden {
             display: none;
         }
+
+        .form-control[readonly],
+        .form-select[readonly],
+        input[readonly].form-control,
+        textarea[readonly].form-control {
+            background-color: #6b7280;
+            border-color: #9ca3af;
+            color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
+        .form-control[readonly]::placeholder,
+        textarea[readonly].form-control::placeholder {
+            color: rgba(243, 244, 246, 0.75);
+        }
     </style>
 @endpush
 
@@ -153,34 +169,45 @@
 
             <div id="detailRows" class="d-grid gap-3">
                 @forelse ($detailRows as $index => $detailRow)
+                    @php
+                        $isDetailLocked = ((int) ($detailRow['status'] ?? 0)) === 2;
+                    @endphp
                     <div class="detail-card p-3" data-detail-row>
+                        <input type="hidden" name="details[{{ $index }}][id]" value="{{ $detailRow['id'] ?? '' }}">
+                        <input type="hidden" name="details[{{ $index }}][status]" value="{{ $detailRow['status'] ?? 0 }}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0">Detail #<span class="detail-number">{{ $index + 1 }}</span></h6>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                            <h6 class="mb-0">Detail #<span class="detail-number">{{ $index + 1 }}</span>
+                                @if ($isDetailLocked)
+                                    <span class="badge bg-success ms-2">Done</span>
+                                @endif
+                            </h6>
+                            @if (! $isDetailLocked)
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                            @endif
                         </div>
 
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label">Activity <span class="text-danger">*</span></label>
-                                <input type="text" name="details[{{ $index }}][activity]" class="form-control" value="{{ $detailRow['activity'] ?? '' }}">
+                                <input type="text" name="details[{{ $index }}][activity]" class="form-control" value="{{ $detailRow['activity'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.activity') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">Planning Start <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}">
+                                <input type="datetime-local" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}">
+                                <input type="datetime-local" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Description</label>
-                                <textarea name="details[{{ $index }}][description]" class="form-control" rows="2">{{ $detailRow['description'] ?? '' }}</textarea>
+                                <textarea name="details[{{ $index }}][description]" class="form-control" rows="2" {{ $isDetailLocked ? 'readonly' : '' }}>{{ $detailRow['description'] ?? '' }}</textarea>
                                 @error('details.' . $index . '.description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -295,6 +322,8 @@
                 wrapper.className = 'detail-card p-3';
                 wrapper.setAttribute('data-detail-row', '');
                 wrapper.innerHTML = `
+                    <input type="hidden" name="details[${index}][id]" value="">
+                    <input type="hidden" name="details[${index}][status]" value="0">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h6 class="mb-0">Detail #<span class="detail-number">${index + 1}</span></h6>
                         <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
@@ -441,6 +470,11 @@
                     const rows = detailRowsContainer.querySelectorAll('[data-detail-row]');
                     const row = removeButton.closest('[data-detail-row]');
                     if (!row || rows.length <= 1) {
+                        return;
+                    }
+
+                    const statusInput = row.querySelector('input[name$="[status]"]');
+                    if (statusInput && Number(statusInput.value) === 2) {
                         return;
                     }
 
