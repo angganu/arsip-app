@@ -14,7 +14,7 @@
     $isDashboardActive = request()->routeIs(['admin.dashboard', 'manager.dashboard']);
     $isDocumentMenuActive = request()->routeIs(['task-categories.*', 'task-masters.*']);
     $isCreateDocumentActive = request()->routeIs('task-masters.create');
-    $isListDocumentActive = request()->routeIs('task-masters.index');
+    $isListDocumentActive = request()->routeIs(['task-masters.index', 'task-masters.show', 'task-masters.edit', 'task-masters.discussion']);
     $isTaskCategoryActive = request()->routeIs('task-categories.*');
 @endphp
 
