@@ -8,6 +8,10 @@
     $avatarUrl = $avatarPath
         ? asset('storage/' . $avatarPath)
         : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=1f6feb&color=ffffff&size=64';
+    $isManager = auth()->user()->roles()->where('name', 'manager')->exists();
+    $dashboardRoute = $isManager
+        ? route('manager.dashboard')
+        : route('admin.dashboard');
     $pageTitle = $pageTitle ?: trim($__env->yieldContent('title'));
     $pageTitle = $pageTitle ?: 'Arsip App';
 

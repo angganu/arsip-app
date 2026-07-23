@@ -12,8 +12,9 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
 
