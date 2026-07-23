@@ -35,7 +35,6 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
 
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::resource('task-categories', TaskCategoryController::class)->except(['show']);
 });
 
 Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
@@ -46,4 +45,5 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
     Route::post('task-masters/{taskMaster}/discussion', [TaskDiscussionController::class, 'store'])
         ->name('task-masters.discussion.store');
     Route::resource('task-masters', TaskMasterController::class);
+    Route::resource('task-categories', TaskCategoryController::class);
 });
