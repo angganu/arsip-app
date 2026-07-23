@@ -204,7 +204,7 @@
         <section class="chart-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h2 class="h5 mb-1">Summary</h2>
+                    <h2 class="h5 mb-1">Summary by Users</h2>
                     <p class="small text-light-emphasis mb-0">{{ $totalTaskDetails }} task detail record(s) matched the selected range.</p>
                 </div>
             </div>
@@ -212,21 +212,23 @@
                 <table class="table table-dark table-borderless align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th class="text-end">Total</th>
-                            <th class="text-end">Percentage</th>
+                            <th>Admin Name</th>
+                            <th class="text-end" width="20%">Total</th>
+                            <th class="text-end" width="20%">Unfin.</th>
+                            <th class="text-end" width="20%">Fin.</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($categoryStats as $category)
+                        @forelse ($summaryStats as $summary)
                             <tr>
-                                <td>{{ $category['name'] }}</td>
-                                <td class="text-end">{{ $category['total'] }}</td>
-                                <td class="text-end">{{ $category['percentage'] }}%</td>
+                                <td>{{ $summary['name'] }}</td>
+                                <td class="text-end">{{ $summary['total_task'] }}</td>
+                                <td class="text-end">{{ $summary['unfinished'] }}</td>
+                                <td class="text-end">{{ $summary['finished'] }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center text-light-emphasis">No category data available.</td>
+                                <td colspan="4" class="text-center text-light-emphasis">No summary data available.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TaskCategory;
 use App\Models\TaskDetail;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
@@ -91,6 +92,40 @@ class ManagerDashboardController extends Controller
             return $category;
         });
 
+        $plannerIds = $details
+            ->map(function (TaskDetail $detail) {
+                return (int) ($detail->master?->planned_by ?? 0);
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $plannerNames = User::query()
+            ->whereIn('id', $plannerIds)
+            ->pluck('name', 'id');
+
+        $summaryStats = $details
+            ->groupBy(function (TaskDetail $detail) {
+                return (int) ($detail->master?->planned_by ?? 0);
+            })
+            ->map(function ($group, int $plannedBy) use ($plannerNames) {
+                $unfinished = $group->filter(function (TaskDetail $detail) {
+                    return in_array((int) $detail->status, [0, 1, 3], true);
+                })->count();
+
+                $finished = $group->where('status', 2)->count();
+
+                return [
+                    'planned_by' => $plannedBy,
+                    'name' => $plannerNames->get($plannedBy, $plannedBy > 0 ? 'Unknown User' : 'Unknown User'),
+                    'total_task' => $group->count(),
+                    'unfinished' => $unfinished,
+                    'finished' => $finished,
+                ];
+            })
+            ->sortByDesc('total_task')
+            ->values();
+
         return view('manager.dashboard', [
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -103,6 +138,7 @@ class ManagerDashboardController extends Controller
             'categoryStats' => $categoryStats,
             'categoryChartLabels' => $categoryChartLabels,
             'categoryChartTotals' => $categoryChartTotals,
+            'summaryStats' => $summaryStats,
             'totalTaskDetails' => $details->count(),
         ]);
     }
