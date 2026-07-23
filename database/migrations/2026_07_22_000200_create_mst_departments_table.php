@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('mst_departments', function (Blueprint $table) {
             $table->id();
+            $table->string('code', 25);
             $table->string('name')->unique();
             $table->timestamps();
         });

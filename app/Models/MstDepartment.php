@@ -13,6 +13,7 @@ class MstDepartment extends Model
     protected $table = 'mst_departments';
 
     protected $fillable = [
+        'code',
         'name',
     ];
 

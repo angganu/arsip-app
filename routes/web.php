@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BaseUserController;
 use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\TaskDiscussionController;
 use App\Http\Controllers\TaskMasterController;
@@ -47,4 +49,12 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
         ->name('task-masters.discussion.store');
     Route::resource('task-masters', TaskMasterController::class);
     Route::resource('task-categories', TaskCategoryController::class);
+    Route::resource('departments', DepartmentController::class)->except('show');
+    Route::get('base-users/{baseUser}/password', [BaseUserController::class, 'editPassword'])
+        ->name('base-users.password.edit');
+    Route::put('base-users/{baseUser}/password', [BaseUserController::class, 'updatePassword'])
+        ->name('base-users.password.update');
+    Route::resource('base-users', BaseUserController::class)
+        ->parameters(['base-users' => 'baseUser'])
+        ->except('show');
 });

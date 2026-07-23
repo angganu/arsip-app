@@ -20,6 +20,8 @@
     $isCreateDocumentActive = request()->routeIs('task-masters.create');
     $isListDocumentActive = request()->routeIs(['task-masters.index', 'task-masters.show', 'task-masters.edit', 'task-masters.discussion']);
     $isTaskCategoryActive = request()->routeIs('task-categories.*');
+    $isDepartmentActive = request()->routeIs('departments.*');
+    $isUserMenuActive = request()->routeIs('base-users.*');
 @endphp
 
 <nav class="navbar app-card mb-3 px-2 py-2 navbar-dark">
@@ -79,11 +81,7 @@
         </div>
         <div class="offcanvas-body">
             <ul class="nav nav-pills flex-column gap-1">
-                <li class="nav-item">
-                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ $dashboardRoute }}">Dashboard</a>
-                </li>
-
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <button
                         class="nav-link text-start w-100 d-flex justify-content-between align-items-center {{ $isDocumentMenuActive ? 'active' : '' }}"
                         type="button"
@@ -108,10 +106,34 @@
                             </li>
                         </ul>
                     </div>
+                </li> -->
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ $dashboardRoute }}">Dashboard</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isListDocumentActive ? 'active' : '' }}" href="{{ route('task-masters.index') }}">Task List</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isTaskCategoryActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">Task Categories</a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#">Report</a>
+                </li>
+
+                <li class="nav-item">
+                    <hr class="border-secondary my-1">
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isDepartmentActive ? 'active' : '' }}" href="{{ route('departments.index') }}">Department</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isUserMenuActive ? 'active' : '' }}" href="{{ route('base-users.index') }}">Users</a>
                 </li>
             </ul>
         </div>
