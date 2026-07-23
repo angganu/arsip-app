@@ -161,12 +161,12 @@
 
         <div class="collapse filter-card" id="filterPanel">
             <form method="GET" action="{{ route('task-masters.index') }}" class="row g-2 align-items-end">
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-3">
                     <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
                     <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code, name, description, category">
                 </div>
 
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-2">
                     <label for="status" class="form-label small text-light mb-1">Schedule</label>
                     <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">All</option>
@@ -175,7 +175,19 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-md-3">
+                @if ($isManager ?? false)
+                    <div class="col-12 col-md-3">
+                        <label for="planned_by" class="form-label small text-light mb-1">Planned by</label>
+                        <select name="planned_by" id="planned_by" class="form-select form-select-sm">
+                            <option value="0">All Administrator</option>
+                            @foreach (($adminUsers ?? collect()) as $adminUser)
+                                <option value="{{ $adminUser->id }}" {{ (int) ($plannedBy ?? 0) === (int) $adminUser->id ? 'selected' : '' }}>{{ $adminUser->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                <div class="col-12 col-md-2">
                     <label for="sort_by" class="form-label small text-light mb-1">Sort by</label>
                     <select name="sort_by" id="sort_by" class="form-select form-select-sm">
                         <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
@@ -250,7 +262,7 @@
 
         <div class="mt-3 d-flex justify-content-center">
             <div class="pagination-dark">
-                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest'])->links('pagination::bootstrap-4') }}
+                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest', 'planned_by' => $plannedBy ?? 0])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </main>

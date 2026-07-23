@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TaskCategory;
 use App\Models\TaskAttachment;
 use App\Models\TaskMaster;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,21 @@ class TaskMasterController extends Controller
         $keyword = trim((string) $request->input('keyword', ''));
         $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'latest');
+        $plannedBy = $isManager ? (int) $request->input('planned_by', 0) : 0;
+        $adminUsers = collect();
+
+        if ($isManager) {
+            $adminUsers = User::query()
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'administrator');
+                })
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            if ($plannedBy > 0 && ! $adminUsers->pluck('id')->contains($plannedBy)) {
+                $plannedBy = 0;
+            }
+        }
 
         $query = TaskMaster::query()
             ->with('category')
@@ -54,6 +70,10 @@ class TaskMasterController extends Controller
 
         if ($isAdministrator && ! $isManager) {
             $query->where('planned_by', $user->id);
+        }
+
+        if ($isManager && $plannedBy > 0) {
+            $query->where('planned_by', $plannedBy);
         }
 
         if ($keyword !== '') {
@@ -78,9 +98,9 @@ class TaskMasterController extends Controller
         }
 
         $tasks = $query->paginate($perPage)
-            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by']));
+            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by', 'planned_by']));
 
-        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'sortBy'));
+        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'sortBy', 'plannedBy', 'adminUsers', 'isManager'));
     }
 
     public function create()
