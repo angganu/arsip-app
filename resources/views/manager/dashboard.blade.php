@@ -106,7 +106,7 @@
 
         <section class="date-filter-card">
             <form method="GET" action="{{ route('manager.dashboard') }}" class="row g-3 align-items-end">
-                <div class="col-6 col-md-6">
+                <div class="col-6 col-md-6 mt-1">
                     <label for="start_date" class="form-label small text-light mb-1">Start date</label>
                     <input
                         type="date"
@@ -116,7 +116,7 @@
                         value="{{ $startDate->format('Y-m-d') }}"
                     >
                 </div>
-                <div class="col-6 col-md-6">
+                <div class="col-6 col-md-6 mt-1">
                     <label for="end_date" class="form-label small text-light mb-1">End date</label>
                     <input
                         type="date"
@@ -125,6 +125,18 @@
                         class="form-control"
                         value="{{ $endDate->format('Y-m-d') }}"
                     >
+                </div>
+
+                <div class="col-12 col-md-8 mt-1">
+                    <label for="planned_by" class="form-label small text-light mb-1">Planned by</label>
+                    <select id="planned_by" name="planned_by" class="form-select">
+                        <option value="0" {{ (int) ($plannedBy ?? 0) === 0 ? 'selected' : '' }}>All planners</option>
+                        @foreach (($adminUsers ?? collect()) as $adminUser)
+                            <option value="{{ $adminUser->id }}" {{ (int) ($plannedBy ?? 0) === (int) $adminUser->id ? 'selected' : '' }}>
+                                {{ $adminUser->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-3 col-md-2 d-grid gap-2 mt-3">

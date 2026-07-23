@@ -17,9 +17,21 @@ class ManagerDashboardController extends Controller
     {
         $defaultStartDate = now()->subDays(6)->startOfDay();
         $defaultEndDate = now()->endOfDay();
+        $plannedBy = (int) $request->input('planned_by', 0);
 
         $startDate = $this->parseDate($request->input('start_date'), $defaultStartDate)->startOfDay();
         $endDate = $this->parseDate($request->input('end_date'), $defaultEndDate)->endOfDay();
+
+        $adminUsers = User::query()
+            ->whereHas('roles', function (Builder $query) {
+                $query->where('name', 'administrator');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        if ($plannedBy > 0 && ! $adminUsers->pluck('id')->contains($plannedBy)) {
+            $plannedBy = 0;
+        }
 
         if ($startDate->greaterThan($endDate)) {
             [$startDate, $endDate] = [$endDate->copy()->startOfDay(), $startDate->copy()->endOfDay()];
@@ -31,6 +43,11 @@ class ManagerDashboardController extends Controller
                 $this->applyDateOverlap($query, 'date_planning_start', 'date_planning_finish', $startDate, $endDate);
                 $query->orWhere(function (Builder $nested) use ($startDate, $endDate) {
                     $this->applyDateOverlap($nested, 'date_realization_start', 'date_realization_finish', $startDate, $endDate);
+                });
+            })
+            ->when($plannedBy > 0, function (Builder $query) use ($plannedBy) {
+                $query->whereHas('master', function (Builder $masterQuery) use ($plannedBy) {
+                    $masterQuery->where('planned_by', $plannedBy);
                 });
             })
             ->orderBy('id')
@@ -129,6 +146,8 @@ class ManagerDashboardController extends Controller
         return view('manager.dashboard', [
             'startDate' => $startDate,
             'endDate' => $endDate,
+            'plannedBy' => $plannedBy,
+            'adminUsers' => $adminUsers,
             'taskDetails' => $details,
             'statusLabels' => $statusLabels,
             'statusCounts' => $statusCounts,
