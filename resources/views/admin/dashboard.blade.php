@@ -17,6 +17,19 @@
             border-radius: 0.95rem;
             padding: 1rem;
             height: 100%;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .metric-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .metric-card-link:hover .metric-card,
+        .metric-card-link:focus .metric-card {
+            transform: translateY(-2px);
+            border-color: rgba(96, 165, 250, 0.6);
         }
 
         .metric-card__value {
@@ -90,6 +103,18 @@
                     <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
                 </div>
 
+                <div class="col-12 col-md-8 mt-1">
+                    <label for="task_category_id" class="form-label small text-light mb-1">Task category</label>
+                    <select id="task_category_id" name="task_category_id" class="form-select">
+                        <option value="0" {{ (int) ($taskCategoryId ?? 0) === 0 ? 'selected' : '' }}>All categories</option>
+                        @foreach (($taskCategories ?? collect()) as $taskCategory)
+                            <option value="{{ $taskCategory->id }}" {{ (int) ($taskCategoryId ?? 0) === (int) $taskCategory->id ? 'selected' : '' }}>
+                                {{ $taskCategory->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <input type="hidden" name="planned_by" value="{{ auth()->id() }}">
 
                 <div class="col-3 col-md-2 d-grid gap-2 mt-3">
@@ -113,10 +138,15 @@
                     };
                 @endphp
                 <div class="col-6 col-sm-6 col-xl-3">
-                    <div class="metric-card">
-                        <div class="small text-light text-uppercase">{{ $label }}</div>
-                        <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} Task</div>
-                    </div>
+                    <a
+                        class="metric-card-link"
+                        href="{{ route('task-masters.index', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d'), 'status' => (string) $status, 'planned_by' => (int) auth()->id(), 'task_category_id' => (int) ($taskCategoryId ?? 0)]) }}"
+                    >
+                        <div class="metric-card">
+                            <div class="small text-light text-uppercase">{{ $label }}</div>
+                            <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} Task</div>
+                        </div>
+                    </a>
                 </div>
             @endforeach
         </section>

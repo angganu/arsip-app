@@ -18,6 +18,7 @@ class DashboardController extends Controller
         $defaultStartDate = now()->subDays(6)->startOfDay();
         $defaultEndDate = now()->endOfDay();
         $plannedBy = (int) $request->input('planned_by', 0);
+        $taskCategoryId = (int) $request->input('task_category_id', 0);
         $user = $request->user();
 
         $startDate = $this->parseDate($request->input('start_date'), $defaultStartDate)->startOfDay();
@@ -52,6 +53,9 @@ class DashboardController extends Controller
             })
             ->when($plannedBy > 0, function (Builder $query) use ($plannedBy) {
                 $query->where('planned_by', $plannedBy);
+            })
+            ->when($taskCategoryId > 0, function (Builder $query) use ($taskCategoryId) {
+                $query->where('task_category_id', $taskCategoryId);
             })
             ->orderBy('id')
             ->get();
@@ -88,6 +92,10 @@ class DashboardController extends Controller
         $taskCategories = TaskCategory::query()
             ->orderBy('name')
             ->get(['id', 'name']);
+
+        if ($taskCategoryId > 0 && ! $taskCategories->pluck('id')->contains($taskCategoryId)) {
+            $taskCategoryId = 0;
+        }
 
         $categoryStats = $taskCategories->map(function (TaskCategory $category) use ($tasks) {
             $count = $tasks->filter(function (TaskMaster $task) use ($category) {
@@ -154,7 +162,9 @@ class DashboardController extends Controller
             'startDate' => $startDate,
             'endDate' => $endDate,
             'plannedBy' => $plannedBy,
+            'taskCategoryId' => $taskCategoryId,
             'adminUsers' => $adminUsers,
+            'taskCategories' => $taskCategories,
             'taskDetails' => $tasks,
             'statusLabels' => $statusLabels,
             'statusCounts' => $statusCounts,

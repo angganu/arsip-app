@@ -39,9 +39,21 @@ class TaskMasterController extends Controller
 
         $keyword = trim((string) $request->input('keyword', ''));
         $status = $request->input('status');
+        $taskCategoryId = (int) $request->input('task_category_id', 0);
+        $startDate = $this->parseFilterDate($request->input('start_date'));
+        $endDate = $this->parseFilterDate($request->input('end_date'));
         $sortBy = $request->input('sort_by', 'latest');
         $plannedBy = $isManager ? (int) $request->input('planned_by', 0) : 0;
         $adminUsers = collect();
+        $taskCategories = TaskCategory::query()->orderBy('name')->get(['id', 'name']);
+
+        if ($taskCategoryId > 0 && ! $taskCategories->pluck('id')->contains($taskCategoryId)) {
+            $taskCategoryId = 0;
+        }
+
+        if ($startDate !== null && $endDate !== null && $startDate->greaterThan($endDate)) {
+            [$startDate, $endDate] = [$endDate->copy(), $startDate->copy()];
+        }
 
         if ($isManager) {
             $adminUsers = User::query()
@@ -77,6 +89,10 @@ class TaskMasterController extends Controller
             $query->where('planned_by', $plannedBy);
         }
 
+        if ($taskCategoryId > 0) {
+            $query->where('task_category_id', $taskCategoryId);
+        }
+
         if ($keyword !== '') {
             $query->where(function ($builder) use ($keyword) {
                 $builder->where('code', 'like', "%{$keyword}%")
@@ -88,8 +104,26 @@ class TaskMasterController extends Controller
             });
         }
 
-        if (in_array($status, ['scheduled', 'unscheduled'], true)) {
+        if (in_array((string) $status, ['0', '1', '2', '3'], true)) {
+            $query->where('status', (int) $status);
+        } elseif (in_array($status, ['scheduled', 'unscheduled'], true)) {
             $query->where('has_schedule', $status === 'scheduled');
+        }
+
+        if ($startDate !== null && $endDate !== null) {
+            $query->where(function ($builder) use ($startDate, $endDate) {
+                $builder->where(function ($nested) use ($startDate, $endDate) {
+                    $nested->whereNotNull('date_planning_start')
+                        ->whereNotNull('date_planning_finish')
+                        ->whereDate('date_planning_start', '<=', $endDate->toDateString())
+                        ->whereDate('date_planning_finish', '>=', $startDate->toDateString());
+                })->orWhere(function ($nested) use ($startDate, $endDate) {
+                    $nested->whereNotNull('date_realization_start')
+                        ->whereNotNull('date_realization_finish')
+                        ->whereDate('date_realization_start', '<=', $endDate->toDateString())
+                        ->whereDate('date_realization_finish', '>=', $startDate->toDateString());
+                });
+            });
         }
 
         if ($sortBy === 'oldest') {
@@ -99,9 +133,25 @@ class TaskMasterController extends Controller
         }
 
         $tasks = $query->paginate($perPage)
-            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by', 'planned_by']));
+            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by', 'planned_by', 'task_category_id', 'start_date', 'end_date']));
 
-        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'sortBy', 'plannedBy', 'adminUsers', 'isManager'));
+        $startDateInput = $startDate?->format('Y-m-d') ?? (string) $request->input('start_date', '');
+        $endDateInput = $endDate?->format('Y-m-d') ?? (string) $request->input('end_date', '');
+
+        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'sortBy', 'plannedBy', 'taskCategoryId', 'taskCategories', 'adminUsers', 'isManager', 'startDateInput', 'endDateInput'));
+    }
+
+    private function parseFilterDate(mixed $value): ?Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function create()

@@ -177,6 +177,28 @@
                     </select>
                 </div>
 
+                <div class="col-6 col-md-2">
+                    <label for="start_date" class="form-label small text-light mb-1">Start date</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="{{ $startDateInput ?? '' }}">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label for="end_date" class="form-label small text-light mb-1">End date</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control form-control-sm" value="{{ $endDateInput ?? '' }}">
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="task_category_id" class="form-label small text-light mb-1">Task Category</label>
+                    <select name="task_category_id" id="task_category_id" class="form-select form-select-sm">
+                        <option value="0">All Category</option>
+                        @foreach (($taskCategories ?? collect()) as $taskCategory)
+                            <option value="{{ $taskCategory->id }}" {{ (int) ($taskCategoryId ?? 0) === (int) $taskCategory->id ? 'selected' : '' }}>
+                                {{ $taskCategory->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 @if ($isManager ?? false)
                     <div class="col-12 col-md-3">
                         <label for="planned_by" class="form-label small text-light mb-1">Planned by</label>
@@ -264,7 +286,7 @@
 
         <div class="mt-3 d-flex justify-content-center">
             <div class="pagination-dark">
-                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest', 'planned_by' => $plannedBy ?? 0])->links('pagination::bootstrap-4') }}
+                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest', 'planned_by' => $plannedBy ?? 0, 'task_category_id' => $taskCategoryId ?? 0, 'start_date' => $startDateInput ?? '', 'end_date' => $endDateInput ?? ''])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </main>
