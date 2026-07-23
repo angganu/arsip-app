@@ -2,17 +2,359 @@
 
 @section('title', 'Manager Dashboard')
 
+@push('styles')
+    <style>
+        .dashboard-hero {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(15, 23, 42, 0.7));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 0.95rem;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .metric-card__value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .metric-card__value--new {
+            color: #6095df;
+        }
+
+        .metric-card__value--process {
+            color: #f59e0b;
+        }
+
+        .metric-card__value--done {
+            color: #22c55e;
+        }
+
+        .metric-card__value--hold {
+            color: #ef4444;
+        }
+
+        .chart-card {
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 1rem;
+            padding: 1rem;
+            height: 100%;
+        }
+
+        .chart-box {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .date-filter-card {
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+
+        .category-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .category-row:last-child {
+            border-bottom: 0;
+        }
+
+        .category-row__name {
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .category-row__meta {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+    </style>
+@endpush
+
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => route('manager.dashboard'), 'pageTitle' => 'Dashboard'])
 
-    {{-- <header class="app-card p-4">
-        <p class="text-uppercase small text-success mb-1">Manager Area</p>
-        <h1 class="h3 mb-2">Manager Dashboard</h1>
-        <p class="mb-0 text-light-emphasis">Selamat datang, {{ auth()->user()->name }}.</p>
-    </header> --}}
+    <main class="d-grid gap-3 flex-grow-1">
+        <!-- <section class="dashboard-hero">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-start align-items-md-center">
+                <div>
+                    <p class="text-uppercase small text-info mb-1">Manager Area</p>
+                    <h1 class="h3 mb-2">Manager Dashboard</h1>
+                    <p class="mb-0 text-light-emphasis">Selamat datang, {{ auth()->user()->name }}. Gunakan filter tanggal untuk menyesuaikan statistik, grafik planning vs realization, dan komposisi task detail per kategori.</p>
+                </div>
 
-    <main class="app-card p-4 flex-grow-1">
-        <p class="mb-2">Halaman ini hanya bisa diakses oleh user dengan role manager.</p>
-        <p class="mb-0 text-light-emphasis small">Gunakan area ini untuk fitur monitoring, approval, dan operasional manajerial.</p>
+                <div class="text-md-end">
+                    <div class="small text-light-emphasis">Selected range</div>
+                    <div class="fw-semibold">{{ $startDate->format('Y-m-d') }} to {{ $endDate->format('Y-m-d') }}</div>
+                </div>
+            </div>
+        </section> -->
+
+        <section class="date-filter-card">
+            <form method="GET" action="{{ route('manager.dashboard') }}" class="row g-3 align-items-end">
+                <div class="col-6 col-md-6">
+                    <label for="start_date" class="form-label small text-light mb-1">Start date</label>
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        class="form-control"
+                        value="{{ $startDate->format('Y-m-d') }}"
+                    >
+                </div>
+                <div class="col-6 col-md-6">
+                    <label for="end_date" class="form-label small text-light mb-1">End date</label>
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        class="form-control"
+                        value="{{ $endDate->format('Y-m-d') }}"
+                    >
+                </div>
+
+                <div class="col-3 col-md-2 d-grid gap-2 mt-3">
+                    <a href="{{ route('manager.dashboard') }}" class="btn btn-outline-light">Reset</a>
+                </div>
+                <div class="col-9 col-md-2 d-grid gap-2 mt-3">
+                    <button type="submit" class="btn btn-app">Apply</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="row g-3">
+            @foreach ($statusLabels as $status => $label)
+                @php
+                    $statusClass = match ($status) {
+                        0 => 'metric-card__value--new',
+                        1 => 'metric-card__value--process',
+                        2 => 'metric-card__value--done',
+                        3 => 'metric-card__value--hold',
+                        default => '',
+                    };
+                @endphp
+                <div class="col-6 col-sm-6 col-xl-3">
+                    <div class="metric-card">
+                        <div class="small text-light text-uppercase">{{ $label }}</div>
+                        <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} Task</div>
+                        <!-- <div class="small text-light-emphasis mt-2">Task details in the selected date range</div> -->
+                    </div>
+                </div>
+            @endforeach
+        </section>
+
+        <section class="row g-3">
+            <div class="col-12 col-xl-8">
+                <div class="chart-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h5 mb-1">Planning vs Realization</h2>
+                            <p class="small text-light-emphasis mb-0">Counts are grouped by day across the selected range.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="planningRealizationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="chart-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="h5 mb-1">Task detail by category</h2>
+                            <p class="small text-light-emphasis mb-0">Share of filtered task details.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box mb-3" style="min-height: 260px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+
+                    <div>
+                        @forelse ($categoryStats as $category)
+                            <div class="category-row">
+                                <div>
+                                    <div class="category-row__name">{{ $category['name'] }}</div>
+                                    <div class="category-row__meta">{{ $category['percentage'] }}% of total</div>
+                                </div>
+                                <div class="fw-semibold">{{ $category['total'] }}</div>
+                            </div>
+                        @empty
+                            <div class="text-light-emphasis small">No category data for the selected period.</div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="chart-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Summary</h2>
+                    <p class="small text-light-emphasis mb-0">{{ $totalTaskDetails }} task detail record(s) matched the selected range.</p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-borderless align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($categoryStats as $category)
+                            <tr>
+                                <td>{{ $category['name'] }}</td>
+                                <td class="text-end">{{ $category['total'] }}</td>
+                                <td class="text-end">{{ $category['percentage'] }}%</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-light-emphasis">No category data available.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script type="application/json" id="dashboard-chart-data">
+        @php
+            echo json_encode([
+                'lineLabels' => $lineChartLabels,
+                'planningSeries' => $planningSeries,
+                'realizationSeries' => $realizationSeries,
+                'categoryLabels' => $categoryChartLabels,
+                'categoryTotals' => $categoryChartTotals,
+            ], JSON_UNESCAPED_UNICODE);
+        @endphp
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const planningRealizationCtx = document.getElementById('planningRealizationChart');
+            const categoryCtx = document.getElementById('categoryChart');
+            const dashboardChartDataElement = document.getElementById('dashboard-chart-data');
+            const dashboardChartData = dashboardChartDataElement ? JSON.parse(dashboardChartDataElement.textContent || '{}') : {};
+
+            const lineLabels = dashboardChartData.lineLabels || [];
+            const planningSeries = dashboardChartData.planningSeries || [];
+            const realizationSeries = dashboardChartData.realizationSeries || [];
+            const categoryLabels = dashboardChartData.categoryLabels || [];
+            const categoryTotals = dashboardChartData.categoryTotals || [];
+
+            if (planningRealizationCtx) {
+                new Chart(planningRealizationCtx, {
+                    type: 'line',
+                    data: {
+                        labels: lineLabels,
+                        datasets: [
+                            {
+                                label: 'Planning',
+                                data: planningSeries,
+                                borderColor: '#60a5fa',
+                                backgroundColor: 'rgba(96, 165, 250, 0.15)',
+                                tension: 0.35,
+                                fill: false,
+                            },
+                            {
+                                label: 'Realization',
+                                data: realizationSeries,
+                                borderColor: '#22c55e',
+                                backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                                tension: 0.35,
+                                fill: false,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#f8fafc',
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#cbd5e1',
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.08)',
+                                },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#cbd5e1',
+                                    precision: 0,
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.08)',
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (categoryCtx) {
+                new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryTotals,
+                            backgroundColor: [
+                                '#38bdf8',
+                                '#22c55e',
+                                '#f59e0b',
+                                '#ef4444',
+                                '#a855f7',
+                                '#14b8a6',
+                                '#f97316',
+                                '#84cc16',
+                            ],
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#f8fafc',
+                                },
+                            },
+                        },
+                        cutout: '62%',
+                    },
+                });
+            }
+        });
+    </script>
+@endpush

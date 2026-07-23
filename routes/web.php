@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\TaskDiscussionController;
@@ -29,7 +30,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:manager'])->group(function () {
-    Route::view('/manager/dashboard', 'manager.dashboard')->name('manager.dashboard');
+    Route::get('/manager/dashboard', [ManagerDashboardController::class, 'index'])->name('manager.dashboard');
 });
 
 Route::middleware(['auth', 'role:administrator'])->group(function () {
