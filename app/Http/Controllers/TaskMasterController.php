@@ -30,7 +30,14 @@ class TaskMasterController extends Controller
         $status = $request->input('status');
         $sortBy = $request->input('sort_by', 'latest');
 
-        $query = TaskMaster::query()->with('category');
+        $query = TaskMaster::query()
+            ->with('category')
+            ->withCount([
+                'details',
+                'details as done_details_count' => function ($builder) {
+                    $builder->where('status', 2);
+                },
+            ]);
 
         if ($keyword !== '') {
             $query->where(function ($builder) use ($keyword) {

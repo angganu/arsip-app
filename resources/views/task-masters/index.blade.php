@@ -68,6 +68,33 @@
             color: #cbd5e1;
         }
 
+        .task-progress {
+            --progress: 0;
+            --ring-color: #64748b;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: conic-gradient(var(--ring-color) calc(var(--progress) * 1%), rgba(148, 163, 184, 0.25) 0);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14) inset;
+            flex-shrink: 0;
+        }
+
+        .task-progress__inner {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(15, 23, 42, 0.95);
+            color: #f8fafc;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            line-height: 1;
+        }
+
         .task-card__grid {
             display: grid;
             gap: 0.5rem;
@@ -153,15 +180,25 @@
 
         <div class="task-card-list">
             @forelse ($tasks as $task)
+                @php
+                    $totalDetails = (int) ($task->details_count ?? 0);
+                    $doneDetails = (int) ($task->done_details_count ?? 0);
+                    $progressPercent = $totalDetails > 0 ? (int) round(($doneDetails / $totalDetails) * 100) : 0;
+                    $progressPercent = max(0, min(100, $progressPercent));
+                    $progressColor = $progressPercent === 100 ? '#22c55e' : ($progressPercent > 0 ? '#3b82f6' : '#64748b');
+                @endphp
                 <div class="task-card">
-                    <div class="task-card__header">
+                    <div class="task-card__header mb-0">
                         <div>
                             <div class="task-card__meta"><b>#{{ $loop->iteration + ($tasks->currentPage() - 1) * $tasks->perPage() }}</b> · {{ $task->code }}</div>
                             <div class="task-card__meta">{{ $task->category?->name ?: 'No category' }}</div>
                         </div>
-                        <span class="badge {{ $task->has_schedule ? 'bg-success' : 'bg-secondary' }}">
-                            {{ $task->has_schedule ? 'Scheduled' : 'No Schedule' }}
-                        </span>
+                        <div class="task-progress"
+                             style="--progress: {{ $progressPercent }}; --ring-color: {{ $progressColor }};"
+                             role="img"
+                             aria-label="Task progress {{ $progressPercent }} percent">
+                            <div class="task-progress__inner">{{ $progressPercent }}%</div>
+                        </div>
                     </div>
 
                     <div class="task-card__grid">
@@ -175,7 +212,7 @@
                     <hr>
                     <div class="task-card__actions">
                         <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">View</a>
-                        <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                        <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">Manage</a>
                         <form action="{{ route('task-masters.destroy', $task) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($task->name) }}?')">
                             @csrf
                             @method('DELETE')
