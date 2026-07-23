@@ -107,6 +107,37 @@
             flex-wrap: wrap;
             gap: 0.5rem;
             margin-top: 0.85rem;
+            align-items: center;
+        }
+
+        .task-card__dropdown .dropdown-menu {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            min-width: 13rem;
+        }
+
+        .task-card__dropdown .dropdown-item {
+            color: #e2e8f0;
+        }
+
+        .task-card__dropdown .dropdown-item:hover,
+        .task-card__dropdown .dropdown-item:focus {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .task-card__dropdown .dropdown-divider {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .task-card__dropdown .dropdown-item-danger {
+            color: #fca5a5;
+        }
+
+        .task-card__dropdown .dropdown-item-danger:hover,
+        .task-card__dropdown .dropdown-item-danger:focus {
+            color: #fecaca;
+            background: rgba(220, 38, 38, 0.25);
         }
 
         .chat-count {
@@ -264,13 +295,24 @@
 
                     <hr>
                     <div class="task-card__actions">
-                        <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">View</a>
-                        <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">Manage</a>
-                        <form action="{{ route('task-masters.destroy', $task) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($task->name) }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                        </form>
+                        <div class="dropdown task-card__dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item">View</a></li>
+                                <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item">Manage</a></li>
+                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item">Tambah Rincian Tugas</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('task-masters.destroy', $task) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($task->name) }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item dropdown-item-danger">Delete</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                         <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">
                             Chat
                             @if ($unreadDiscussions > 0)

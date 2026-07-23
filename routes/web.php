@@ -6,6 +6,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BaseUserController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskDetailController;
 use App\Http\Controllers\TaskDiscussionController;
 use App\Http\Controllers\TaskMasterController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
         ->name('task-masters.discussion.index');
     Route::post('task-masters/{taskMaster}/discussion', [TaskDiscussionController::class, 'store'])
         ->name('task-masters.discussion.store');
+    Route::get('task-masters/{taskMaster}/details/create', [TaskDetailController::class, 'create'])
+        ->name('task-masters.details.create');
+    Route::post('task-masters/{taskMaster}/details', [TaskDetailController::class, 'store'])
+        ->name('task-masters.details.store');
     Route::resource('task-masters', TaskMasterController::class);
     Route::resource('task-categories', TaskCategoryController::class);
 });
