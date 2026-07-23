@@ -88,51 +88,51 @@
     </style>
 @endpush
 
-@section('title', 'Document Categories')
+@section('title', __('texts.document_categories'))
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Document Categories'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.document_categories')])
 
     <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <p class="text-light small mb-0">Manage task categories for document handling.</p>
+                <p class="text-light small mb-0">{{ __('texts.manage_categories') }}</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel">
-                    <i class="fas fa-filter"></i> Filter
+                    <i class="fas fa-filter"></i> {{ __('texts.filter') }}
                 </button>
-                <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+                <a href="{{ route('task-categories.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> {{ __('texts.new') }}</a>
             </div>
         </div>
 
         <div class="collapse filter-card" id="filterPanel">
             <form method="GET" action="{{ route('task-categories.index') }}" class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
-                    <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
+                    <label for="keyword" class="form-label small text-light mb-1">{{ __('texts.keyword') }}</label>
                     <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code, name, description">
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="status" class="form-label small text-light mb-1">Status</label>
+                    <label for="status" class="form-label small text-light mb-1">{{ __('texts.status') }}</label>
                     <select name="status" id="status" class="form-select form-select-sm">
-                        <option value="">All</option>
-                        <option value="active" {{ ($status ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ ($status ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="">{{ __('texts.all') }}</option>
+                        <option value="active" {{ ($status ?? '') === 'active' ? 'selected' : '' }}>{{ __('texts.active') }}</option>
+                        <option value="inactive" {{ ($status ?? '') === 'inactive' ? 'selected' : '' }}>{{ __('texts.inactive') }}</option>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="sort_by" class="form-label small text-light mb-1">Sort by</label>
+                    <label for="sort_by" class="form-label small text-light mb-1">{{ __('texts.sort_by') }}</label>
                     <select name="sort_by" id="sort_by" class="form-select form-select-sm">
-                        <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
-                        <option value="oldest" {{ ($sortBy ?? 'latest') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                        <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>{{ __('texts.latest') }}</option>
+                        <option value="oldest" {{ ($sortBy ?? 'latest') === 'oldest' ? 'selected' : '' }}>{{ __('texts.oldest') }}</option>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-2 d-flex gap-2 mt-3">
-                    <button type="submit" class="btn btn-app btn-sm w-100">Apply</button>
-                    <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
+                    <button type="submit" class="btn btn-app btn-sm w-100">{{ __('texts.apply') }}</button>
+                    <a href="{{ route('task-categories.index') }}" class="btn btn-outline-light btn-sm">{{ __('texts.reset') }}</a>
                 </div>
             </form>
         </div>
@@ -159,25 +159,25 @@
                             <div class="category-card__title">{{ $category->name }}</div>
                         </div>
                         <span class="badge-status badge {{ $category->is_active ? 'bg-success' : 'bg-secondary' }}">
-                            {{ $category->is_active ? 'Active' : 'Inactive' }}
+                            {{ $category->is_active ? __('texts.active') : __('texts.inactive') }}
                         </span>
                     </div>
 
                     <div class="category-card__body">
-                        <div class="text-light-emphasis small mb-0">{{ $category->description ?: '—' }}</div>
+                        <div class="text-light-emphasis small mb-0">{{ $category->description ?: __('texts.none') }}</div>
                     </div>
                     <hr>
                     <div class="category-card__actions">
-                        <a href="{{ route('task-categories.edit', $category) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                        <form action="{{ route('task-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($category->name) }}?')">
+                        <a href="{{ route('task-categories.edit', $category) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.edit') }}</a>
+                        <form action="{{ route('task-categories.destroy', $category) }}" method="POST" onsubmit="return confirm({{ Illuminate\Support\Js::from(__('texts.confirm_delete', ['name' => $category->name])) }})">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
                         </form>
                     </div>
                 </div>
             @empty
-                <div class="text-center text-light-emphasis py-3">No categories found.</div>
+                <div class="text-center text-light-emphasis py-3">{{ __('texts.no_categories_found') }}</div>
             @endforelse
         </div>
 

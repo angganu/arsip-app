@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BaseUserController;
 use App\Http\Controllers\TaskCategoryController;
@@ -31,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/change-password', [ProfileController::class, 'editPassword'])->name('password.edit');
     Route::put('/change-password', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::post('/language', [LanguageController::class, 'update'])->name('language.update');
 });
 
 Route::middleware(['auth', 'role:manager'])->group(function () {

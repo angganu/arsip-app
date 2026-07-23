@@ -69,7 +69,7 @@ class TaskCategoryController extends Controller
         TaskCategory::create($data);
 
         return redirect()->route('task-categories.index')
-            ->with('success', 'Document category created successfully.');
+            ->with('success', __('texts.success_category_created'));
     }
 
     public function edit(TaskCategory $taskCategory)
@@ -98,7 +98,7 @@ class TaskCategoryController extends Controller
         $taskCategory->update($data);
 
         return redirect()->route('task-categories.index')
-            ->with('success', 'Document category updated successfully.');
+            ->with('success', __('texts.success_category_updated'));
     }
 
     public function destroy(TaskCategory $taskCategory)
@@ -106,6 +106,6 @@ class TaskCategoryController extends Controller
         $taskCategory->delete();
 
         return redirect()->route('task-categories.index')
-            ->with('success', 'Document category deleted successfully.');
+            ->with('success', __('texts.success_category_deleted'));
     }
 }

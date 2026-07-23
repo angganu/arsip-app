@@ -219,7 +219,7 @@ class TaskMasterController extends Controller
         });
 
         return redirect()->route('task-masters.index')
-            ->with('success', 'Document created successfully.');
+            ->with('success', __('texts.success_document_created'));
     }
 
     public function edit(TaskMaster $taskMaster)
@@ -329,7 +329,7 @@ class TaskMasterController extends Controller
         });
 
         return redirect()->route('task-masters.index')
-            ->with('success', 'Document updated successfully.');
+            ->with('success', __('texts.success_document_updated'));
     }
 
     public function destroy(TaskMaster $taskMaster)
@@ -337,7 +337,7 @@ class TaskMasterController extends Controller
         $taskMaster->delete();
 
         return redirect()->route('task-masters.index')
-            ->with('success', 'Document deleted successfully.');
+            ->with('success', __('texts.success_document_deleted'));
     }
 
     private function validateTaskMaster(Request $request, ?TaskMaster $taskMaster = null): array

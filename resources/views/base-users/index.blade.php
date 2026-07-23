@@ -88,33 +88,33 @@
     </style>
 @endpush
 
-@section('title', 'Users')
+@section('title', __('texts.users'))
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Users'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.users')])
 
     <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <p class="text-light small mb-0">Manage user accounts, profile data, and role assignments.</p>
+            <p class="text-light small mb-0">{{ __('texts.manage_users') }}</p>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel">
-                    <i class="fas fa-filter"></i> Filter
+                    <i class="fas fa-filter"></i> {{ __('texts.filter') }}
                 </button>
-                <a href="{{ route('base-users.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+                <a href="{{ route('base-users.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> {{ __('texts.new') }}</a>
             </div>
         </div>
 
         <div class="collapse filter-card" id="filterPanel">
             <form method="GET" action="{{ route('base-users.index') }}" class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
-                    <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
+                    <label for="keyword" class="form-label small text-light mb-1">{{ __('texts.keyword') }}</label>
                     <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Name or email">
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="role" class="form-label small text-light mb-1">Role</label>
+                    <label for="role" class="form-label small text-light mb-1">{{ __('texts.role') }}</label>
                     <select name="role" id="role" class="form-select form-select-sm">
-                        <option value="">All</option>
+                        <option value="">{{ __('texts.all') }}</option>
                         @foreach ($roles as $roleOption)
                             <option value="{{ $roleOption->name }}" {{ ($role ?? '') === $roleOption->name ? 'selected' : '' }}>{{ ucfirst($roleOption->name) }}</option>
                         @endforeach
@@ -122,9 +122,9 @@
                 </div>
 
                 <div class="col-12 col-md-3">
-                    <label for="department_id" class="form-label small text-light mb-1">Department</label>
+                    <label for="department_id" class="form-label small text-light mb-1">{{ __('texts.department') }}</label>
                     <select name="department_id" id="department_id" class="form-select form-select-sm">
-                        <option value="">All</option>
+                        <option value="">{{ __('texts.all') }}</option>
                         @foreach ($departments as $department)
                             <option value="{{ $department->id }}" {{ (string) ($departmentId ?? '') === (string) $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
                         @endforeach
@@ -132,8 +132,8 @@
                 </div>
 
                 <div class="col-12 col-md-2 d-flex gap-2 mt-3">
-                    <button type="submit" class="btn btn-app btn-sm w-100">Apply</button>
-                    <a href="{{ route('base-users.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
+                    <button type="submit" class="btn btn-app btn-sm w-100">{{ __('texts.apply') }}</button>
+                    <a href="{{ route('base-users.index') }}" class="btn btn-outline-light btn-sm">{{ __('texts.reset') }}</a>
                 </div>
             </form>
         </div>
@@ -158,22 +158,22 @@
                     </div>
 
                     <div class="user-card__body">
-                        <div><span class="text-light-emphasis">Department:</span> {{ $user->profile?->department?->name ?: '-' }}</div>
-                        <div><span class="text-light-emphasis">Phone:</span> {{ $user->profile?->phone ?: '-' }}</div>
+                        <div><span class="text-light-emphasis">{{ __('texts.department') }}:</span> {{ $user->profile?->department?->name ?: '-' }}</div>
+                        <div><span class="text-light-emphasis">{{ __('texts.phone') }}:</span> {{ $user->profile?->phone ?: '-' }}</div>
                     </div>
                     <hr>
                     <div class="user-card__actions">
-                        <a href="{{ route('base-users.edit', $user) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                        <a href="{{ route('base-users.password.edit', $user) }}" class="btn btn-sm btn-outline-info">Change Password</a>
-                        <form action="{{ route('base-users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($user->name) }}?')">
+                        <a href="{{ route('base-users.edit', $user) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.edit') }}</a>
+                        <a href="{{ route('base-users.password.edit', $user) }}" class="btn btn-sm btn-outline-info">{{ __('texts.change_password') }}</a>
+                        <form action="{{ route('base-users.destroy', $user) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $user->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
                         </form>
                     </div>
                 </div>
             @empty
-                <div class="text-center text-light-emphasis py-3">No users found.</div>
+                <div class="text-center text-light-emphasis py-3">{{ __('texts.no_users_found') }}</div>
             @endforelse
         </div>
 

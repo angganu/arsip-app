@@ -81,42 +81,42 @@
     </style>
 @endpush
 
-@section('title', 'Departments')
+@section('title', __('texts.departments'))
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Departments'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.departments')])
 
     <main class="app-card p-3 flex-grow-1">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <p class="text-light small mb-0">Manage department master data.</p>
+            <p class="text-light small mb-0">{{ __('texts.manage_departments') }}</p>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel">
-                    <i class="fas fa-filter"></i> Filter
+                    <i class="fas fa-filter"></i> {{ __('texts.filter') }}
                 </button>
-                <a href="{{ route('departments.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> New</a>
+                <a href="{{ route('departments.create') }}" class="btn btn-app"><i class="fas fa-plus"></i> {{ __('texts.new') }}</a>
             </div>
         </div>
 
         <div class="collapse filter-card" id="filterPanel">
             <form method="GET" action="{{ route('departments.index') }}" class="row g-2 align-items-end">
                 <div class="col-12 col-md-6">
-                    <label for="keyword" class="form-label small text-light mb-1">Keyword</label>
+                    <label for="keyword" class="form-label small text-light mb-1">{{ __('texts.keyword') }}</label>
                     <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code or name">
                 </div>
 
                 <div class="col-12 col-md-4">
-                    <label for="sort_by" class="form-label small text-light mb-1">Sort by</label>
+                    <label for="sort_by" class="form-label small text-light mb-1">{{ __('texts.sort_by') }}</label>
                     <select name="sort_by" id="sort_by" class="form-select form-select-sm">
-                        <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>Latest</option>
-                        <option value="oldest" {{ ($sortBy ?? 'latest') === 'oldest' ? 'selected' : '' }}>Oldest</option>
-                        <option value="name_asc" {{ ($sortBy ?? 'latest') === 'name_asc' ? 'selected' : '' }}>Name A-Z</option>
-                        <option value="name_desc" {{ ($sortBy ?? 'latest') === 'name_desc' ? 'selected' : '' }}>Name Z-A</option>
+                        <option value="latest" {{ ($sortBy ?? 'latest') === 'latest' ? 'selected' : '' }}>{{ __('texts.latest') }}</option>
+                        <option value="oldest" {{ ($sortBy ?? 'latest') === 'oldest' ? 'selected' : '' }}>{{ __('texts.oldest') }}</option>
+                        <option value="name_asc" {{ ($sortBy ?? 'latest') === 'name_asc' ? 'selected' : '' }}>{{ __('texts.name_asc') }}</option>
+                        <option value="name_desc" {{ ($sortBy ?? 'latest') === 'name_desc' ? 'selected' : '' }}>{{ __('texts.name_desc') }}</option>
                     </select>
                 </div>
 
                 <div class="col-12 col-md-2 d-flex gap-2 mt-3">
-                    <button type="submit" class="btn btn-app btn-sm w-100">Apply</button>
-                    <a href="{{ route('departments.index') }}" class="btn btn-outline-light btn-sm">Reset</a>
+                    <button type="submit" class="btn btn-app btn-sm w-100">{{ __('texts.apply') }}</button>
+                    <a href="{{ route('departments.index') }}" class="btn btn-outline-light btn-sm">{{ __('texts.reset') }}</a>
                 </div>
             </form>
         </div>
@@ -137,21 +137,21 @@
                             <div class="department-card__meta"><b>#{{ $loop->iteration + ($departments->currentPage() - 1) * $departments->perPage() }}</b> · {{ $department->code }}</div>
                             <div class="department-card__title">{{ $department->name }}</div>
                         </div>
-                        <span class="badge bg-info-subtle text-info-emphasis">{{ $department->user_profiles_count }} users</span>
+                        <span class="badge bg-info-subtle text-info-emphasis">{{ $department->user_profiles_count }} {{ __('texts.users') }}</span>
                     </div>
 
                     <hr>
                     <div class="department-card__actions">
-                        <a href="{{ route('departments.edit', $department) }}" class="btn btn-sm btn-outline-warning">Edit</a>
-                        <form action="{{ route('departments.destroy', $department) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ addslashes($department->name) }}?')">
+                        <a href="{{ route('departments.edit', $department) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.edit') }}</a>
+                        <form action="{{ route('departments.destroy', $department) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $department->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
                         </form>
                     </div>
                 </div>
             @empty
-                <div class="text-center text-light-emphasis py-3">No departments found.</div>
+                <div class="text-center text-light-emphasis py-3">{{ __('texts.no_departments_found') }}</div>
             @endforelse
         </div>
 

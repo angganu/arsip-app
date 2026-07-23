@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Administrator Dashboard')
+@section('title', __('texts.administrator_dashboard'))
 
 @push('styles')
     <style>
@@ -74,7 +74,7 @@
 @endpush
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Dashboard'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.dashboard')])
 
     <main class="d-grid gap-3 flex-grow-1">
         <!-- <section class="dashboard-hero">
@@ -95,18 +95,18 @@
         <section class="date-filter-card">
             <form method="GET" action="{{ route('admin.dashboard') }}" class="row g-3 align-items-end">
                 <div class="col-6 col-md-6 mt-1">
-                    <label for="start_date" class="form-label small text-light mb-1">Start date</label>
+                    <label for="start_date" class="form-label small text-light mb-1">{{ __('texts.start_date') }}</label>
                     <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-6 col-md-6 mt-1">
-                    <label for="end_date" class="form-label small text-light mb-1">End date</label>
+                    <label for="end_date" class="form-label small text-light mb-1">{{ __('texts.end_date') }}</label>
                     <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
                 </div>
 
                 <div class="col-12 col-md-8 mt-1">
-                    <label for="task_category_id" class="form-label small text-light mb-1">Task category</label>
+                    <label for="task_category_id" class="form-label small text-light mb-1">{{ __('texts.task_category') }}</label>
                     <select id="task_category_id" name="task_category_id" class="form-select">
-                        <option value="0" {{ (int) ($taskCategoryId ?? 0) === 0 ? 'selected' : '' }}>All categories</option>
+                        <option value="0" {{ (int) ($taskCategoryId ?? 0) === 0 ? 'selected' : '' }}>{{ __('texts.all_categories') }}</option>
                         @foreach (($taskCategories ?? collect()) as $taskCategory)
                             <option value="{{ $taskCategory->id }}" {{ (int) ($taskCategoryId ?? 0) === (int) $taskCategory->id ? 'selected' : '' }}>
                                 {{ $taskCategory->name }}
@@ -118,10 +118,10 @@
                 <input type="hidden" name="planned_by" value="{{ auth()->id() }}">
 
                 <div class="col-3 col-md-2 d-grid gap-2 mt-3">
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light">Reset</a>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light">{{ __('texts.reset') }}</a>
                 </div>
                 <div class="col-9 col-md-2 d-grid gap-2 mt-3">
-                    <button type="submit" class="btn btn-app">Apply</button>
+                    <button type="submit" class="btn btn-app">{{ __('texts.apply') }}</button>
                 </div>
             </form>
         </section>
@@ -144,7 +144,7 @@
                     >
                         <div class="metric-card">
                             <div class="small text-light text-uppercase">{{ $label }}</div>
-                            <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} Task</div>
+                            <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} {{ __('texts.task') }}</div>
                         </div>
                     </a>
                 </div>
@@ -156,8 +156,8 @@
                 <div class="chart-card h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h2 class="h5 mb-1">Planning vs Realization</h2>
-                            <p class="small text-light-emphasis mb-0">Counts are grouped by day across the selected range.</p>
+                            <h2 class="h5 mb-1">{{ __('texts.planning_vs_realization') }}</h2>
+                            <p class="small text-light-emphasis mb-0">{{ __('texts.chart_counts_grouped_by_day') }}</p>
                         </div>
                     </div>
                     <div class="chart-box">
@@ -170,8 +170,8 @@
                 <div class="chart-card h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h2 class="h5 mb-1">Task detail by category</h2>
-                            <p class="small text-light-emphasis mb-0">Share of filtered task details.</p>
+                            <h2 class="h5 mb-1">{{ __('texts.task_detail_by_category') }}</h2>
+                            <p class="small text-light-emphasis mb-0">{{ __('texts.share_of_filtered_task_details') }}</p>
                         </div>
                     </div>
                     <div class="chart-box mb-3" style="min-height: 260px;">
@@ -183,12 +183,12 @@
                             <div class="summary-row">
                                 <div>
                                     <div class="summary-row__name">{{ $category['name'] }}</div>
-                                    <div class="summary-row__meta">{{ $category['percentage'] }}% of total</div>
+                                    <div class="summary-row__meta">{{ $category['percentage'] }}% {{ __('texts.of_total') }}</div>
                                 </div>
                                 <div class="fw-semibold">{{ $category['total'] }}</div>
                             </div>
                         @empty
-                            <div class="text-light-emphasis small">No category data for the selected period.</div>
+                            <div class="text-light-emphasis small">{{ __('texts.no_category_data_selected_period') }}</div>
                         @endforelse
                     </div>
                 </div>
@@ -240,6 +240,8 @@
                 'lineLabels' => $lineChartLabels,
                 'planningSeries' => $planningSeries,
                 'realizationSeries' => $realizationSeries,
+                'planningLabel' => __('texts.planning'),
+                'realizationLabel' => __('texts.realization'),
                 'categoryLabels' => $categoryChartLabels,
                 'categoryTotals' => $categoryChartTotals,
             ], JSON_UNESCAPED_UNICODE);
@@ -255,6 +257,8 @@
             const lineLabels = dashboardChartData.lineLabels || [];
             const planningSeries = dashboardChartData.planningSeries || [];
             const realizationSeries = dashboardChartData.realizationSeries || [];
+            const planningLabel = dashboardChartData.planningLabel || 'Planning';
+            const realizationLabel = dashboardChartData.realizationLabel || 'Realization';
             const categoryLabels = dashboardChartData.categoryLabels || [];
             const categoryTotals = dashboardChartData.categoryTotals || [];
 
@@ -265,7 +269,7 @@
                         labels: lineLabels,
                         datasets: [
                             {
-                                label: 'Planning',
+                                label: planningLabel,
                                 data: planningSeries,
                                 borderColor: '#60a5fa',
                                 backgroundColor: 'rgba(96, 165, 250, 0.15)',
@@ -273,7 +277,7 @@
                                 fill: false,
                             },
                             {
-                                label: 'Realization',
+                                label: realizationLabel,
                                 data: realizationSeries,
                                 borderColor: '#22c55e',
                                 backgroundColor: 'rgba(34, 197, 94, 0.15)',

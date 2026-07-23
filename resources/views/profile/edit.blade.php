@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Profile')
+@section('title', __('texts.profile'))
 
 @php
     $dashboardRoute = auth()->user()->roles()->where('name', 'manager')->exists()
@@ -9,7 +9,7 @@
 @endphp
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute, 'pageTitle' => 'Profile'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute, 'pageTitle' => __('texts.profile')])
 
     {{-- <header class="app-card p-4">
         <p class="text-uppercase small text-info mb-1">Account</p>
@@ -38,7 +38,7 @@
                 <div class="text-center">
                     <img
                         src="{{ asset('storage/' . $user->profile->avatar_path) }}"
-                        alt="Current Avatar"
+                        alt="{{ __('texts.current_avatar') }}"
                         class="rounded-circle border border-light border-opacity-50"
                         style="width: 88px; height: 88px; object-fit: cover;"
                     >
@@ -46,7 +46,7 @@
             @endif
 
             <div>
-                <label for="avatar" class="form-label">Avatar</label>
+                <label for="avatar" class="form-label">{{ __('texts.avatar') }}</label>
                 <input
                     id="avatar"
                     name="avatar"
@@ -57,7 +57,7 @@
             </div>
 
             <div>
-                <label for="name" class="form-label">Name</label>
+                <label for="name" class="form-label">{{ __('texts.name') }}</label>
                 <input
                     id="name"
                     name="name"
@@ -69,7 +69,7 @@
             </div>
 
             <div>
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">{{ __('texts.email') }}</label>
                 <input
                     id="email"
                     name="email"
@@ -81,7 +81,7 @@
             </div>
 
             <div>
-                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                <label for="date_of_birth" class="form-label">{{ __('texts.date_of_birth') }}</label>
                 <input
                     id="date_of_birth"
                     name="date_of_birth"
@@ -92,7 +92,7 @@
             </div>
 
             <div>
-                <label for="phone" class="form-label">Phone</label>
+                <label for="phone" class="form-label">{{ __('texts.phone') }}</label>
                 <input
                     id="phone"
                     name="phone"
@@ -103,7 +103,7 @@
             </div>
 
             <div>
-                <label for="address" class="form-label">Address</label>
+                <label for="address" class="form-label">{{ __('texts.address') }}</label>
                 <textarea
                     id="address"
                     name="address"
@@ -113,9 +113,9 @@
             </div>
 
             <div>
-                <label for="mst_department_id" class="form-label">Department</label>
+                <label for="mst_department_id" class="form-label">{{ __('texts.department') }}</label>
                 <select id="mst_department_id" name="mst_department_id" class="form-select form-select-lg">
-                    <option value="">-- Select Department --</option>
+                    <option value="">{{ __('texts.select_department') }}</option>
                     @foreach ($departments as $department)
                         <option
                             value="{{ $department->id }}"
@@ -127,7 +127,7 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-app btn-lg w-100 mt-3">Save Profile</button>
+            <button type="submit" class="btn btn-app btn-lg w-100 mt-3">{{ __('texts.save_profile') }}</button>
         </form>
     </main>
 @endsection

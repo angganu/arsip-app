@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Task Discussion')
+@section('title', __('texts.task_discussion'))
 
 @push('styles')
     <style>
@@ -119,13 +119,13 @@
 @endpush
 
 @section('content')
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Task Discussion'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.task_discussion')])
 
     <main class="app-card p-3 p-md-4 flex-grow-1">
         <div class="discussion-wrap">
             <div class="discussion-head">
                 <div class="discussion-title">{{ $taskMaster->name }}</div>
-                <div class="discussion-meta">{{ $taskMaster->code }} · {{ $taskMaster->category?->name ?: 'No category' }}</div>
+                <div class="discussion-meta">{{ $taskMaster->code }} · {{ $taskMaster->category?->name ?: __('texts.no_category') }}</div>
             </div>
 
             @if (session('success'))
@@ -147,7 +147,7 @@
                     <article class="discussion-message discussion-message--{{ $senderType }}">
                         <div class="discussion-message__header">
                             <div class="discussion-message__author">
-                                {{ $discussion->user?->name ?: 'Unknown User' }}
+                                {{ $discussion->user?->name ?: __('texts.unknown_user') }}
                                 <!-- <span class="discussion-message__role discussion-message__role--{{ $senderType }}">{{ $senderType }}</span> -->
                             </div>
                             <div class="discussion-message__time">{{ optional($discussion->created_at)->format('Y-m-d H:i') }}</div>
@@ -155,19 +155,19 @@
                         <div class="discussion-message__body">{{ $discussion->message }}</div>
                     </article>
                 @empty
-                    <div class="text-center text-light-emphasis py-4">No discussion yet.</div>
+                    <div class="text-center text-light-emphasis py-4">{{ __('texts.no_discussion_yet') }}</div>
                 @endforelse
             </div>
 
             <form method="POST" action="{{ route('task-masters.discussion.store', $taskMaster) }}" class="discussion-form">
                 @csrf
-                <label for="message" class="form-label text-light">Message</label>
-                <textarea name="message" id="message" rows="4" class="form-control" maxlength="5000" placeholder="Type your discussion message..." required>{{ old('message') }}</textarea>
+                <label for="message" class="form-label text-light">{{ __('texts.message') }}</label>
+                <textarea name="message" id="message" rows="4" class="form-control" maxlength="5000" placeholder="{{ __('texts.type_discussion_message') }}" required>{{ old('message') }}</textarea>
                 @error('message') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
 
                 <div class="d-flex gap-2 mt-3">
-                    <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">Back</a>
-                    <button type="submit" class="btn btn-app">Send</button>
+                    <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">{{ __('texts.back') }}</a>
+                    <button type="submit" class="btn btn-app">{{ __('texts.send') }}</button>
                 </div>
             </form>
         </div>

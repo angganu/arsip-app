@@ -71,7 +71,7 @@ class ProfileController extends Controller
         );
 
         return redirect()->route('profile.edit')
-            ->with('status', 'Profile berhasil diperbarui.');
+            ->with('status', __('texts.success_profile_updated'));
     }
 
     public function editPassword(): View
@@ -93,6 +93,6 @@ class ProfileController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('password.edit')
-            ->with('status', 'Password berhasil diperbarui.');
+            ->with('status', __('texts.success_password_updated'));
     }
 }

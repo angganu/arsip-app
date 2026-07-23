@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $mode === 'edit' ? 'Edit Document' : 'Create Document')
+@section('title', $mode === 'edit' ? __('texts.edit_document') : __('texts.create_document'))
 
 @push('styles')
     <style>
@@ -83,12 +83,21 @@
             : collect();
     @endphp
 
-    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => $mode === 'edit' ? 'Edit Document' : 'Create Document'])
+    @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => $mode === 'edit' ? __('texts.edit_document') : __('texts.create_document')])
 
-    <main class="app-card p-4 flex-grow-1">
+    <main
+        class="app-card p-4 flex-grow-1"
+        data-detail-label="{{ __('texts.detail') }}"
+        data-remove-label="{{ __('texts.remove') }}"
+        data-activity-label="{{ __('texts.activity') }}"
+        data-planning-start-label="{{ __('texts.planning_start') }}"
+        data-planning-finish-label="{{ __('texts.planning_finish') }}"
+        data-description-label="{{ __('texts.description') }}"
+        data-delete-label="{{ __('texts.delete') }}"
+    >
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <p class="text-light small mb-0">Fill in the form below to save the document.</p>
+                <p class="text-light small mb-0">{{ __('texts.fill_document_form') }}</p>
             </div>
         </div>
 
@@ -99,9 +108,9 @@
             @endif
 
             <div class="mb-3">
-                <label class="form-label">Category <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('texts.category') }} <span class="text-danger">*</span></label>
                 <select name="task_category_id" class="form-select" required>
-                    <option value="">Select category</option>
+                    <option value="">{{ __('texts.category') }}</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" {{ (string) old('task_category_id', $taskMaster->task_category_id) === (string) $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                     @endforeach
@@ -110,20 +119,20 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Task Title <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('texts.task_title') }} <span class="text-danger">*</span></label>
                 <input type="text" name="name" class="form-control" value="{{ old('name', $taskMaster->name) }}" required>
                 @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
             </div>
 
             <div class="row g-3 mb-3">
                 <div class="col-6 col-md-6">
-                    <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
                     <input type="date" name="date_planning_start" class="form-control" value="{{ old('date_planning_start', optional($taskMaster->date_planning_start)->format('Y-m-d')) }}" required>
                     @error('date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-6 col-md-6">
-                    <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
                     <input type="date" name="date_planning_finish" class="form-control" value="{{ old('date_planning_finish', optional($taskMaster->date_planning_finish)->format('Y-m-d')) }}" required>
                     @error('date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
@@ -131,19 +140,19 @@
 
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" name="has_schedule" value="1" id="hasSchedule" {{ old('has_schedule', $taskMaster->has_schedule ?? false) ? 'checked' : '' }}>
-                <label class="form-check-label" for="hasSchedule">Has Schedule</label>
+                <label class="form-check-label" for="hasSchedule">{{ __('texts.has_schedule') }}</label>
             </div>
 
             <div id="scheduleFields" class="row g-3 mb-3 {{ old('has_schedule', $taskMaster->has_schedule ?? false) ? '' : 'd-none' }}">
                 <div class="col-6 col-md-6">
-                    <label class="form-label">Interval Value <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('texts.interval_value') }} <span class="text-danger">*</span></label>
                     <input type="number" min="1" name="interval_value" class="form-control" value="{{ old('interval_value', $taskMaster->interval_value ?: 1) }}">
                     @error('interval_value') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-6 col-md-6">
-                    <label class="form-label">Interval Schedule <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('texts.interval_schedule') }} <span class="text-danger">*</span></label>
                     <select name="interval_schedule" class="form-select">
-                        <option value="">Select interval</option>
+                        <option value="">{{ __('texts.select_interval') }}</option>
                         @foreach ($intervalOptions as $intervalOption)
                             <option value="{{ $intervalOption }}" {{ old('interval_schedule', $selectedInterval) === $intervalOption ? 'selected' : '' }}>{{ ucfirst($intervalOption) }}</option>
                         @endforeach
@@ -153,7 +162,7 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Description</label>
+                <label class="form-label">{{ __('texts.description') }}</label>
                 <textarea name="description" class="form-control" rows="4">{{ old('description', $taskMaster->description) }}</textarea>
                 @error('description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
             </div>
@@ -161,8 +170,8 @@
             <hr>
             
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <label class="form-label mb-0">Task Details (<span id="detailRowsCount">{{ count($detailRows) }}</span>)</label>
-                <button type="button" id="addDetailRow" class="btn btn-sm btn-outline-light">Add</button>
+                <label class="form-label mb-0">{{ __('texts.task_details_count') }} (<span id="detailRowsCount">{{ count($detailRows) }}</span>)</label>
+                <button type="button" id="addDetailRow" class="btn btn-sm btn-outline-light">{{ __('texts.add') }}</button>
             </div>
 
             @error('details') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
@@ -176,37 +185,37 @@
                         <input type="hidden" name="details[{{ $index }}][id]" value="{{ $detailRow['id'] ?? '' }}">
                         <input type="hidden" name="details[{{ $index }}][status]" value="{{ $detailRow['status'] ?? 0 }}">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0">Detail #<span class="detail-number">{{ $index + 1 }}</span>
+                            <h6 class="mb-0">{{ __('texts.detail') }} #<span class="detail-number">{{ $index + 1 }}</span>
                                 @if ($isDetailLocked)
-                                    <span class="badge bg-success ms-2">Done</span>
+                                    <span class="badge bg-success ms-2">{{ __('texts.done') }}</span>
                                 @endif
                             </h6>
                             @if (! $isDetailLocked)
-                                <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>{{ __('texts.remove') }}</button>
                             @endif
                         </div>
 
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Activity <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.activity') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="details[{{ $index }}][activity]" class="form-control" value="{{ $detailRow['activity'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.activity') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
-                                <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
-                                <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Description</label>
+                                <label class="form-label">{{ __('texts.description') }}</label>
                                 <textarea name="details[{{ $index }}][description]" class="form-control" rows="2" {{ $isDetailLocked ? 'readonly' : '' }}>{{ $detailRow['description'] ?? '' }}</textarea>
                                 @error('details.' . $index . '.description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
@@ -215,28 +224,28 @@
                 @empty
                     <div class="detail-card p-3" data-detail-row>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0">Detail #<span class="detail-number">1</span></h6>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                            <h6 class="mb-0">{{ __('texts.detail') }} #<span class="detail-number">1</span></h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>{{ __('texts.remove') }}</button>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Activity <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.activity') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="details[0][activity]" class="form-control" value="">
                             </div>
 
                             <div class="col-6 col-md-6">
-                                <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="details[0][date_planning_start]" class="form-control" value="">
                             </div>
 
                             <div class="col-6 col-md-6">
-                                <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="details[0][date_planning_finish]" class="form-control" value="">
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Description</label>
+                                <label class="form-label">{{ __('texts.description') }}</label>
                                 <textarea name="details[0][description]" class="form-control" rows="2"></textarea>
                             </div>
                         </div>
@@ -247,10 +256,10 @@
             <hr>
 
             <div class="mb-3">
-                <label for="attachments" class="form-label">Attachments</label>
+                <label for="attachments" class="form-label">{{ __('texts.attachments') }}</label>
                 <input type="file" id="attachments" name="attachments[]" class="attachment-input-hidden" accept="image/*" multiple>
-                <button type="button" id="selectAttachmentsButton" class="btn btn-outline-light">Select Images</button>
-                <div class="form-text text-light">Upload one or more images. You can remove selected images before saving.</div>
+                <button type="button" id="selectAttachmentsButton" class="btn btn-outline-light">{{ __('texts.select_images') }}</button>
+                <div class="form-text text-light">{{ __('texts.upload_images_help') }}</div>
                 @error('existing_attachment_ids') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 @error('existing_attachment_ids.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 @error('attachments') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -258,7 +267,7 @@
             </div>
 
             <div id="existingAttachmentWrapper" class="mb-3 {{ $existingAttachments->isEmpty() ? 'd-none' : '' }}">
-                <label class="form-label">Uploaded Images (<span id="existingAttachmentsCount">{{ $existingAttachments->count() }}</span>)</label>
+                <label class="form-label">{{ __('texts.uploaded_images') }} (<span id="existingAttachmentsCount">{{ $existingAttachments->count() }}</span>)</label>
                 <div id="existingAttachmentPanel" class="attachment-preview-grid">
                     @foreach ($existingAttachments as $attachment)
                         <div class="attachment-preview-card" data-existing-attachment-row>
@@ -268,7 +277,7 @@
                             </a>
                             <div class="attachment-preview-body">
                                 <div class="attachment-preview-name text-light mb-2">{{ $attachment->original_name ?: $attachment->name }}</div>
-                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-existing-attachment>Delete</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-existing-attachment>{{ __('texts.delete') }}</button>
                             </div>
                         </div>
                     @endforeach
@@ -276,13 +285,13 @@
             </div>
 
             <div id="attachmentPreviewWrapper" class="mb-3 d-none">
-                <label class="form-label">Preview Selected Images (<span id="attachmentsCount">0</span>)</label>
+                <label class="form-label">{{ __('texts.preview_selected_images') }} (<span id="attachmentsCount">0</span>)</label>
                 <div id="attachmentPreviewPanel" class="attachment-preview-grid"></div>
             </div>
 
             <div class="mt-4">
-                <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">Back</a>
-                <button type="submit" class="btn btn-app">Save</button>
+                <a href="{{ route('task-masters.index') }}" class="btn btn-outline-light">{{ __('texts.back') }}</a>
+                <button type="submit" class="btn btn-app">{{ __('texts.save') }}</button>
             </div>
         </form>
     </main>
@@ -291,6 +300,14 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const pageCard = document.querySelector('main.app-card');
+            const detailLabel = pageCard?.dataset.detailLabel || 'Detail';
+            const removeLabel = pageCard?.dataset.removeLabel || 'Remove';
+            const activityLabel = pageCard?.dataset.activityLabel || 'Activity';
+            const planningStartLabel = pageCard?.dataset.planningStartLabel || 'Planning Start';
+            const planningFinishLabel = pageCard?.dataset.planningFinishLabel || 'Planning Finish';
+            const descriptionLabel = pageCard?.dataset.descriptionLabel || 'Description';
+            const deleteLabel = pageCard?.dataset.deleteLabel || 'Delete';
             const hasScheduleInput = document.getElementById('hasSchedule');
             const scheduleFields = document.getElementById('scheduleFields');
             const detailRowsContainer = document.getElementById('detailRows');
@@ -325,24 +342,24 @@
                     <input type="hidden" name="details[${index}][id]" value="">
                     <input type="hidden" name="details[${index}][status]" value="0">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Detail #<span class="detail-number">${index + 1}</span></h6>
-                        <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>Remove</button>
+                        <h6 class="mb-0">${detailLabel} #<span class="detail-number">${index + 1}</span></h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-remove-detail>${removeLabel}</button>
                     </div>
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Activity <span class="text-danger">*</span></label>
+                            <label class="form-label">${activityLabel} <span class="text-danger">*</span></label>
                             <input type="text" name="details[${index}][activity]" class="form-control">
                         </div>
                         <div class="col-6 col-md-6">
-                            <label class="form-label">Planning Start <span class="text-danger">*</span></label>
+                            <label class="form-label">${planningStartLabel} <span class="text-danger">*</span></label>
                             <input type="datetime-local" name="details[${index}][date_planning_start]" class="form-control">
                         </div>
                         <div class="col-6 col-md-6">
-                            <label class="form-label">Planning Finish <span class="text-danger">*</span></label>
+                            <label class="form-label">${planningFinishLabel} <span class="text-danger">*</span></label>
                             <input type="datetime-local" name="details[${index}][date_planning_finish]" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">${descriptionLabel}</label>
                             <textarea name="details[${index}][description]" class="form-control" rows="2"></textarea>
                         </div>
                     </div>
@@ -427,7 +444,7 @@
                             </a>
                             <div class="attachment-preview-body">
                                 <div class="attachment-preview-name text-light mb-2">${file.name}</div>
-                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-attachment="${index}">Delete</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger w-100" data-remove-attachment="${index}">${deleteLabel}</button>
                             </div>
                         `;
 

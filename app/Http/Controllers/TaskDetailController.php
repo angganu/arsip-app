@@ -44,6 +44,6 @@ class TaskDetailController extends Controller
         ]);
 
         return redirect()->route('task-masters.show', $taskMaster)
-            ->with('success', 'Task detail created successfully.');
+            ->with('success', __('texts.success_detail_created'));
     }
 }

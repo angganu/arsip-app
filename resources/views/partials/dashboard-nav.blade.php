@@ -13,12 +13,14 @@
         ? route('manager.dashboard')
         : route('admin.dashboard');
     $pageTitle = $pageTitle ?: trim($__env->yieldContent('title'));
-    $pageTitle = $pageTitle ?: 'Arsip App';
+    $pageTitle = $pageTitle ?: __('texts.app_name');
+    $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+    $currentLocale = app()->getLocale();
 
     $isDashboardActive = request()->routeIs(['admin.dashboard', 'manager.dashboard']);
     $isDocumentMenuActive = request()->routeIs(['task-categories.*', 'task-masters.*']);
     $isCreateDocumentActive = request()->routeIs('task-masters.create');
-    $isListDocumentActive = request()->routeIs(['task-masters.index', 'task-masters.show', 'task-masters.edit', 'task-masters.discussion']);
+    $isListDocumentActive = request()->routeIs(['task-masters.index', 'task-masters.show', 'task-masters.edit', 'task-masters.details.*', 'task-masters.discussion.*']);
     $isTaskCategoryActive = request()->routeIs('task-categories.*');
     $isDepartmentActive = request()->routeIs('departments.*');
     $isUserMenuActive = request()->routeIs('base-users.*');
@@ -56,13 +58,28 @@
                 >
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow">
-                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                <li><a class="dropdown-item" href="{{ route('password.edit') }}">Change Password</a></li>
+                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('texts.profile') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('password.edit') }}">{{ __('texts.change_password') }}</a></li>
+                <li>
+                    <form method="POST" action="{{ route('language.update') }}" class="px-3 py-2">
+                        @csrf
+                        <label for="locale" class="form-label small mb-1">{{ __('texts.set_language') }}</label>
+                        <select id="locale" name="locale" class="form-select form-select-sm" onchange="this.form.submit()">
+                            @foreach ($supportedLocales as $localeCode => $localeData)
+                                @if (in_array($localeCode, ['id', 'en'], true))
+                                    <option value="{{ $localeCode }}" {{ $currentLocale === $localeCode ? 'selected' : '' }}>
+                                        {{ $localeCode === 'id' ? __('texts.language_indonesia') : __('texts.language_english') }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </form>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="dropdown-item text-danger">Logout</button>
+                        <button type="submit" class="dropdown-item text-danger">{{ __('texts.logout') }}</button>
                     </form>
                 </li>
             </ul>
@@ -76,7 +93,7 @@
         aria-labelledby="sidebarMenuLabel"
     >
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarMenuLabel">Menu</h5>
+            <h5 class="offcanvas-title" id="sidebarMenuLabel">{{ __('texts.menu') }}</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -109,19 +126,19 @@
                 </li> -->
 
                 <li class="nav-item">
-                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ $dashboardRoute }}">Dashboard</a>
+                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ $dashboardRoute }}">{{ __('texts.dashboard') }}</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ $isListDocumentActive ? 'active' : '' }}" href="{{ route('task-masters.index') }}">Task List</a>
+                    <a class="nav-link {{ $isListDocumentActive ? 'active' : '' }}" href="{{ route('task-masters.index') }}">{{ __('texts.task_list') }}</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ $isTaskCategoryActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">Task Categories</a>
+                    <a class="nav-link {{ $isTaskCategoryActive ? 'active' : '' }}" href="{{ route('task-categories.index') }}">{{ __('texts.task_categories') }}</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Report</a>
+                    <a class="nav-link" href="#">{{ __('texts.report') }}</a>
                 </li>
 
                 @if ($isManager)
@@ -130,11 +147,11 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link {{ $isDepartmentActive ? 'active' : '' }}" href="{{ route('departments.index') }}">Department</a>
+                        <a class="nav-link {{ $isDepartmentActive ? 'active' : '' }}" href="{{ route('departments.index') }}">{{ __('texts.department') }}</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link {{ $isUserMenuActive ? 'active' : '' }}" href="{{ route('base-users.index') }}">Users</a>
+                        <a class="nav-link {{ $isUserMenuActive ? 'active' : '' }}" href="{{ route('base-users.index') }}">{{ __('texts.users') }}</a>
                     </li>
                 @endif
             </ul>

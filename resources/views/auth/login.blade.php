@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Arsip App')
+@section('title', __('texts.login') . ' - ' . __('texts.app_name'))
 
 @section('content')
     <main class="d-flex flex-column justify-content-center flex-grow-1">
         <section class="app-card p-4 p-sm-4">
             <p class="text-uppercase small mb-1 text-info fw-semibold">Arsip App</p>
-            <h1 class="h3 mb-2">Masuk ke Akun Anda</h1>
-            <p class="text-light-emphasis mb-4">Akses dashboard sesuai peran manager atau administrator.</p>
+            <h1 class="h3 mb-2">{{ __('texts.login_to_account') }}</h1>
+            <p class="text-light-emphasis mb-4">{{ __('texts.access_dashboard_by_role') }}</p>
 
             @if ($errors->any())
                 <div class="alert alert-danger py-2" role="alert">
@@ -33,28 +33,28 @@
                 </div>
 
                 <div>
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label">{{ __('texts.password') }}</label>
                     <input
                         id="password"
                         name="password"
                         type="password"
                         required
                         class="form-control form-control-lg"
-                        placeholder="Masukkan password"
+                        placeholder="{{ __('texts.enter_password') }}"
                     >
                 </div>
 
                 <div class="form-check">
                     <input type="checkbox" name="remember" class="form-check-input" id="remember" value="1">
-                    <label class="form-check-label" for="remember">Ingat saya</label>
+                    <label class="form-check-label" for="remember">{{ __('texts.remember_me') }}</label>
                 </div>
 
-                <button type="submit" class="btn btn-app btn-lg w-100">Login</button>
+                <button type="submit" class="btn btn-app btn-lg w-100">{{ __('texts.login') }}</button>
             </form>
         </section>
 
         <section class="app-card p-3 mt-3">
-            <p class="mb-1 fw-semibold">Sample akun seeder</p>
+            <p class="mb-1 fw-semibold">{{ __('texts.seed_sample_accounts') }}</p>
             <p class="mb-1 small text-light-emphasis">manager@example.com / password123</p>
             <p class="mb-0 small text-light-emphasis">admin@example.com / password123</p>
         </section>
