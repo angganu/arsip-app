@@ -51,6 +51,42 @@
             padding: 1rem;
         }
 
+        .detail-accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-accordion-toggle {
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.7);
+            color: #e2e8f0;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.8rem;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .detail-accordion-toggle:hover,
+        .detail-accordion-toggle:focus {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(96, 165, 250, 0.7);
+            color: #ffffff;
+        }
+
+        .detail-grid-accordion {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+        }
+
+        .detail-grid-accordion.is-open {
+            opacity: 1;
+        }
+
         .attachment-preview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -105,7 +141,12 @@
             </div>
         </div> -->
 
-        <div class="detail-grid">
+        <div class="detail-accordion-header">
+            <h2 class="detail-section-title mb-0">Task Information</h2>
+            <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#documentDetailGrid" aria-expanded="true">Hide</button>
+        </div>
+
+        <div id="documentDetailGrid" class="detail-grid detail-grid-accordion is-open" data-accordion-panel>
             <div class="detail-item">
                 <div class="detail-label">Code</div>
                 <div class="detail-value">{{ $taskMaster->code ?: '—' }}</div>
@@ -151,7 +192,12 @@
                 <div class="detail-card-list">
                     @foreach ($taskMaster->details as $index => $detail)
                         <div class="detail-card">
-                            <div class="detail-grid">
+                            <div class="detail-accordion-header">
+                                <div class="detail-value">Detail #{{ $index + 1 }} - {{ $detail->activity ?: 'No activity name' }}</div>
+                                <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="true">Hide</button>
+                            </div>
+
+                            <div id="detailGrid{{ $detail->id ?: $index }}" class="detail-grid detail-grid-accordion is-open" data-accordion-panel>
                                 <div class="detail-item">
                                     <div class="detail-label">Activity Code</div>
                                     <div class="detail-value">{{ $detail->code ?: '—' }}</div>
@@ -205,3 +251,66 @@
         </div>
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const panels = Array.from(document.querySelectorAll('[data-accordion-panel]'));
+            const toggles = Array.from(document.querySelectorAll('[data-accordion-toggle]'));
+
+            const openPanel = function (panel) {
+                panel.classList.add('is-open');
+                panel.style.maxHeight = panel.scrollHeight + 'px';
+            };
+
+            const closePanel = function (panel) {
+                panel.style.maxHeight = panel.scrollHeight + 'px';
+                requestAnimationFrame(function () {
+                    panel.style.maxHeight = '0px';
+                    panel.classList.remove('is-open');
+                });
+            };
+
+            const updateToggleLabel = function (button, expanded) {
+                button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                button.textContent = expanded ? 'Hide' : 'Show';
+            };
+
+            panels.forEach(function (panel) {
+                if (panel.classList.contains('is-open')) {
+                    panel.style.maxHeight = panel.scrollHeight + 'px';
+                }
+            });
+
+            toggles.forEach(function (button) {
+                const target = button.getAttribute('data-target');
+                const panel = target ? document.querySelector(target) : null;
+
+                if (!panel) {
+                    return;
+                }
+
+                button.addEventListener('click', function () {
+                    const isOpen = panel.classList.contains('is-open');
+
+                    if (isOpen) {
+                        closePanel(panel);
+                        updateToggleLabel(button, false);
+                        return;
+                    }
+
+                    openPanel(panel);
+                    updateToggleLabel(button, true);
+                });
+            });
+
+            window.addEventListener('resize', function () {
+                panels.forEach(function (panel) {
+                    if (panel.classList.contains('is-open')) {
+                        panel.style.maxHeight = panel.scrollHeight + 'px';
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
