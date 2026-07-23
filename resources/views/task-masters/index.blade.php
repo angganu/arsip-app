@@ -167,11 +167,13 @@
                 </div>
 
                 <div class="col-12 col-md-2">
-                    <label for="status" class="form-label small text-light mb-1">Schedule</label>
+                    <label for="status" class="form-label small text-light mb-1">Task Status</label>
                     <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">All</option>
-                        <option value="scheduled" {{ ($status ?? '') === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
-                        <option value="unscheduled" {{ ($status ?? '') === 'unscheduled' ? 'selected' : '' }}>Unscheduled</option>
+                        <option value="0" {{ ($status ?? '') === '0' ? 'selected' : '' }}>New Task</option>
+                        <option value="1" {{ ($status ?? '') === '1' ? 'selected' : '' }}>On Progress</option>
+                        <option value="2" {{ ($status ?? '') === '2' ? 'selected' : '' }}>Done</option>
+                        <option value="3" {{ ($status ?? '') === '3' ? 'selected' : '' }}>Hold</option>
                     </select>
                 </div>
 

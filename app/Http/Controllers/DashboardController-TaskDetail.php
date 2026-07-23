@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class ManagerDashboardController extends Controller
+class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
