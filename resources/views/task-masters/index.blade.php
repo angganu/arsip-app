@@ -218,6 +218,7 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                         </form>
+                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">Chat</a>
                     </div>
                 </div>
             @empty

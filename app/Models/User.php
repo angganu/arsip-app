@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,5 +65,10 @@ class User extends Authenticatable
     public function profile(): HasOne
     {
         return $this->hasOne(BaseUserProfile::class, 'base_user_id');
+    }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(TaskDiscussion::class, 'base_user_id');
     }
 }

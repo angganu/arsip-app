@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskCategoryController;
+use App\Http\Controllers\TaskDiscussionController;
 use App\Http\Controllers\TaskMasterController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +40,9 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
 Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
     Route::get('task-attachments/{attachment}/preview', [TaskMasterController::class, 'previewAttachment'])
         ->name('task-attachments.preview');
+    Route::get('task-masters/{taskMaster}/discussion', [TaskDiscussionController::class, 'index'])
+        ->name('task-masters.discussion.index');
+    Route::post('task-masters/{taskMaster}/discussion', [TaskDiscussionController::class, 'store'])
+        ->name('task-masters.discussion.store');
     Route::resource('task-masters', TaskMasterController::class);
 });

@@ -60,4 +60,9 @@ class TaskMaster extends Model
     {
         return $this->hasMany(TaskAttachment::class, 'task_master_id');
     }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(TaskDiscussion::class, 'task_master_id');
+    }
 }
