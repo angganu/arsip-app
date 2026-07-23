@@ -18,6 +18,7 @@ class ManagerDashboardController extends Controller
         $defaultStartDate = now()->subDays(6)->startOfDay();
         $defaultEndDate = now()->endOfDay();
         $plannedBy = (int) $request->input('planned_by', 0);
+        $user = $request->user();
 
         $startDate = $this->parseDate($request->input('start_date'), $defaultStartDate)->startOfDay();
         $endDate = $this->parseDate($request->input('end_date'), $defaultEndDate)->endOfDay();
@@ -29,8 +30,12 @@ class ManagerDashboardController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        if ($user && $adminUsers->pluck('id')->contains((int) $user->id)) {
+            $plannedBy = (int) $user->id;
+        }
+
         if ($plannedBy > 0 && ! $adminUsers->pluck('id')->contains($plannedBy)) {
-            $plannedBy = 0;
+            $plannedBy = $user ? (int) $user->id : 0;
         }
 
         if ($startDate->greaterThan($endDate)) {
@@ -143,7 +148,11 @@ class ManagerDashboardController extends Controller
             ->sortByDesc('total_task')
             ->values();
 
-        return view('manager.dashboard', [
+        $dashboardView = $user?->roles()->where('name', 'administrator')->exists()
+            ? 'admin.dashboard'
+            : 'manager.dashboard';
+
+        return view($dashboardView, [
             'startDate' => $startDate,
             'endDate' => $endDate,
             'plannedBy' => $plannedBy,
