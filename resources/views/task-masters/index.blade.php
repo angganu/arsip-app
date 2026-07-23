@@ -109,6 +109,22 @@
             margin-top: 0.85rem;
         }
 
+        .chat-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.25rem;
+            height: 1.25rem;
+            padding: 0 0.35rem;
+            margin-left: 0.35rem;
+            border-radius: 999px;
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
         .filter-card {
             border: 1px solid rgba(255, 255, 255, 0.12);
             background: rgba(15, 23, 42, 0.5);
@@ -183,6 +199,7 @@
                 @php
                     $totalDetails = (int) ($task->details_count ?? 0);
                     $doneDetails = (int) ($task->done_details_count ?? 0);
+                    $unreadDiscussions = (int) ($task->unread_discussions_count ?? 0);
                     $progressPercent = $totalDetails > 0 ? (int) round(($doneDetails / $totalDetails) * 100) : 0;
                     $progressPercent = max(0, min(100, $progressPercent));
                     $progressColor = $progressPercent === 100 ? '#22c55e' : ($progressPercent > 0 ? '#3b82f6' : '#64748b');
@@ -218,7 +235,12 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                         </form>
-                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">Chat</a>
+                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">
+                            Chat
+                            @if ($unreadDiscussions > 0)
+                                <span class="chat-count">{{ $unreadDiscussions }}</span>
+                            @endif
+                        </a>
                     </div>
                 </div>
             @empty

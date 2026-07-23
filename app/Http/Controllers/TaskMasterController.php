@@ -46,6 +46,10 @@ class TaskMasterController extends Controller
                 'details as done_details_count' => function ($builder) {
                     $builder->where('status', 2);
                 },
+                'discussions as unread_discussions_count' => function ($builder) use ($user) {
+                    $builder->where('is_read', 0)
+                        ->where('base_user_id', '!=', $user->id);
+                },
             ]);
 
         if ($isAdministrator && ! $isManager) {

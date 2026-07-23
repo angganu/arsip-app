@@ -106,6 +106,18 @@
     </style>
 @endpush
 
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const discussionList = document.querySelector('.discussion-list');
+
+            if (discussionList) {
+                discussionList.scrollTop = discussionList.scrollHeight;
+            }
+        });
+    </script>
+@endpush
+
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => 'Task Discussion'])
 

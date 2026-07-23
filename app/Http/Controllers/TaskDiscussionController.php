@@ -24,6 +24,11 @@ class TaskDiscussionController extends Controller
             abort(403, 'You can only access discussions for your own tasks.');
         }
 
+        $taskMaster->discussions()
+            ->where('base_user_id', '!=', $user->id)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
+
         $taskMaster->load([
             'category',
             'discussions' => function ($query) {
@@ -58,6 +63,7 @@ class TaskDiscussionController extends Controller
         $taskMaster->discussions()->create([
             'base_user_id' => $user->id,
             'message' => trim($validated['message']),
+            'is_read' => 0,
         ]);
 
         return redirect()->route('task-masters.discussion.index', $taskMaster)
