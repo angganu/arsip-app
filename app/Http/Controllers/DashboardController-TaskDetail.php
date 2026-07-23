@@ -77,10 +77,10 @@ class DashboardController extends Controller
         }
 
         $statusLabels = [
-            0 => 'New',
-            1 => 'On Process',
-            2 => 'Done',
-            3 => 'Hold',
+            0 => __('texts.new_task'),
+            1 => __('texts.on_progress'),
+            2 => __('texts.done'),
+            3 => __('texts.hold'),
         ];
 
         $statusCounts = collect([0, 1, 2, 3])->mapWithKeys(function (int $status) use ($details) {
