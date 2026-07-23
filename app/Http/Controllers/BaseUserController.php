@@ -27,6 +27,10 @@ class BaseUserController extends Controller
         $query = User::query()
             ->with(['roles', 'profile.department']);
 
+        if ($request->user()) {
+            $query->whereKeyNot($request->user()->id);
+        }
+
         if ($keyword !== '') {
             $query->where(function ($builder) use ($keyword) {
                 $builder->where('name', 'like', "%{$keyword}%")

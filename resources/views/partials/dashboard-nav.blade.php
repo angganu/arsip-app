@@ -124,17 +124,19 @@
                     <a class="nav-link" href="#">Report</a>
                 </li>
 
-                <li class="nav-item">
-                    <hr class="border-secondary my-1">
-                </li>
+                @if ($isManager)
+                    <li class="nav-item">
+                        <hr class="border-secondary my-1">
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {{ $isDepartmentActive ? 'active' : '' }}" href="{{ route('departments.index') }}">Department</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $isDepartmentActive ? 'active' : '' }}" href="{{ route('departments.index') }}">Department</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {{ $isUserMenuActive ? 'active' : '' }}" href="{{ route('base-users.index') }}">Users</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $isUserMenuActive ? 'active' : '' }}" href="{{ route('base-users.index') }}">Users</a>
+                    </li>
+                @endif
             </ul>
         </div>
     </div>

@@ -49,6 +49,9 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
         ->name('task-masters.discussion.store');
     Route::resource('task-masters', TaskMasterController::class);
     Route::resource('task-categories', TaskCategoryController::class);
+});
+
+Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::resource('departments', DepartmentController::class)->except('show');
     Route::get('base-users/{baseUser}/password', [BaseUserController::class, 'editPassword'])
         ->name('base-users.password.edit');
