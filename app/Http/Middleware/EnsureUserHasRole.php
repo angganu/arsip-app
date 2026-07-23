@@ -11,11 +11,15 @@ class EnsureUserHasRole
     /**
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
+        $roleNames = collect($roles)
+            ->flatMap(static fn (string $role) => explode(',', $role))
+            ->map(static fn (string $role) => trim($role))
+            ->filter();
 
-        if (! $user || ! $user->roles()->where('name', $role)->exists()) {
+        if (! $user || $roleNames->isEmpty() || ! $user->roles()->whereIn('name', $roleNames->all())->exists()) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

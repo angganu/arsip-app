@@ -22,6 +22,15 @@ class TaskMasterController extends Controller
 
     public function index(Request $request)
     {
+        $user = $request->user();
+        $roleNames = $user?->roles()->pluck('name') ?? collect();
+        $isManager = $roleNames->contains('manager');
+        $isAdministrator = $roleNames->contains('administrator');
+
+        if (! $isManager && ! $isAdministrator) {
+            abort(403, 'You do not have permission to access task data.');
+        }
+
         $perPage = in_array((int) $request->input('per_page', 5), [5, 10, 25, 50, 100], true)
             ? (int) $request->input('per_page', 5)
             : 5;
@@ -38,6 +47,10 @@ class TaskMasterController extends Controller
                     $builder->where('status', 2);
                 },
             ]);
+
+        if ($isAdministrator && ! $isManager) {
+            $query->where('planned_by', $user->id);
+        }
 
         if ($keyword !== '') {
             $query->where(function ($builder) use ($keyword) {
