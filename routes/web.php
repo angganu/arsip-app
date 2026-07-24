@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\TaskDetailController;
 use App\Http\Controllers\TaskDiscussionController;
 use App\Http\Controllers\TaskMasterController;
+use App\Http\Controllers\TaskMasterReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,6 +45,11 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
+    Route::get('reports/task-masters', [TaskMasterReportController::class, 'index'])
+        ->name('reports.task-masters.index');
+    Route::get('reports/task-masters/export', [TaskMasterReportController::class, 'export'])
+        ->name('reports.task-masters.export');
+
     Route::get('task-attachments/{attachment}/preview', [TaskMasterController::class, 'previewAttachment'])
         ->name('task-attachments.preview');
     Route::get('task-masters/{taskMaster}/discussion', [TaskDiscussionController::class, 'index'])

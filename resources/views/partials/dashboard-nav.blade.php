@@ -24,6 +24,7 @@
     $isTaskCategoryActive = request()->routeIs('task-categories.*');
     $isDepartmentActive = request()->routeIs('departments.*');
     $isUserMenuActive = request()->routeIs('base-users.*');
+    $isReportActive = request()->routeIs('reports.task-masters.*');
 @endphp
 
 <nav class="navbar app-card mb-3 px-2 py-2 navbar-dark">
@@ -138,7 +139,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">{{ __('texts.report') }}</a>
+                    <a class="nav-link {{ $isReportActive ? 'active' : '' }}" href="{{ route('reports.task-masters.index') }}">{{ __('texts.report') }}</a>
                 </li>
 
                 @if ($isManager)
