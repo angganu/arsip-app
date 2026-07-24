@@ -110,6 +110,86 @@
             align-items: center;
         }
 
+        .task-card__dropdown .dropdown-menu {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            min-width: 13rem;
+        }
+
+        .task-card__dropdown .dropdown-item {
+            color: #e2e8f0;
+        }
+
+        .task-card__dropdown .dropdown-item-success {
+            color: #86efac;
+        }
+
+        .task-card__dropdown .dropdown-item-success:hover,
+        .task-card__dropdown .dropdown-item-success:focus {
+            color: #dcfce7;
+            background: rgba(22, 163, 74, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-info {
+            color: #7dd3fc;
+        }
+
+        .task-card__dropdown .dropdown-item-info:hover,
+        .task-card__dropdown .dropdown-item-info:focus {
+            color: #e0f2fe;
+            background: rgba(14, 165, 233, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-warning {
+            color: #fcd34d;
+        }
+
+        .task-card__dropdown .dropdown-item-warning:hover,
+        .task-card__dropdown .dropdown-item-warning:focus {
+            color: #fef3c7;
+            background: rgba(217, 119, 6, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-primary {
+            color: #93c5fd;
+        }
+
+        .task-card__dropdown .dropdown-item-primary:hover,
+        .task-card__dropdown .dropdown-item-primary:focus {
+            color: #dbeafe;
+            background: rgba(37, 99, 235, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-secondary {
+            color: #cbd5e1;
+        }
+
+        .task-card__dropdown .dropdown-item-secondary:hover,
+        .task-card__dropdown .dropdown-item-secondary:focus {
+            color: #f8fafc;
+            background: rgba(71, 85, 105, 0.3);
+        }
+
+        .task-card__dropdown .dropdown-item:hover,
+        .task-card__dropdown .dropdown-item:focus {
+            color: #ffffff;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .task-card__dropdown .dropdown-divider {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .task-card__dropdown .dropdown-item-danger {
+            color: #fca5a5;
+        }
+
+        .task-card__dropdown .dropdown-item-danger:hover,
+        .task-card__dropdown .dropdown-item-danger:focus {
+            color: #fecaca;
+            background: rgba(220, 38, 38, 0.25);
+        }
+
         .chat-count {
             display: inline-flex;
             align-items: center;
@@ -272,13 +352,13 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item dropdown-item-success">{{ __('texts.view') }}</a></li>
-                                <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-info">{{ __('texts.manage') }}</a></li>
-                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.task_detail_add_button') }}</a></li>
+                                <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
+                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
                                 <li>
                                     <form action="{{ route('task-masters.hold', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_hold', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="dropdown-item dropdown-item-danger">{{ __('texts.hold') }}</button>
+                                        <button type="submit" class="dropdown-item dropdown-item-secondary">{{ __('texts.hold') }}</button>
                                     </form>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
