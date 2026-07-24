@@ -134,7 +134,7 @@
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.document_detail')])
 
-    <main class="app-card p-4 flex-grow-1" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
+    <main class="app-card p-3 flex-grow-1" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
         <!-- <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <p class="text-light small mb-0">View all saved values for this document.</p>
@@ -143,26 +143,26 @@
 
         <div class="detail-accordion-header">
             <h2 class="detail-section-title mb-0">{{ __('texts.task_information') }}</h2>
-            <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#documentDetailGrid" aria-expanded="true">{{ __('texts.hide') }}</button>
+            <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#documentDetailGrid" aria-expanded="false">{{ __('texts.show') }}</button>
         </div>
 
-        <div id="documentDetailGrid" class="detail-grid detail-grid-accordion is-open" data-accordion-panel>
+        <div id="documentDetailGrid" class="detail-grid detail-grid-accordion" data-accordion-panel>
             <div class="detail-item">
                 <div class="detail-label">{{ __('texts.code') }}</div>
                 <div class="detail-value">{{ $taskMaster->code ?: __('texts.none') }}</div>
             </div>
 
-            <div class="detail-item detail-item--full">
+            <div class="detail-item">
                 <div class="detail-label">{{ __('texts.category') }}</div>
                 <div class="detail-value">{{ $taskMaster->category?->name ?: __('texts.no_category') }}</div>
             </div>
 
-            <div class="detail-item">
+            <div class="detail-item detail-item--full">
                 <div class="detail-label">{{ __('texts.task_title') }}</div>
                 <div class="detail-value">{{ $taskMaster->name ?: __('texts.none') }}</div>
             </div>
 
-            <div class="detail-item">
+            <div class="detail-item detail-item--full">
                 <div class="detail-label">{{ __('texts.planning_date') }}</div>
                 <div class="detail-value">{{ optional($taskMaster->date_planning_start)->format('Y-m-d') ?: __('texts.none') }} - {{ optional($taskMaster->date_planning_finish)->format('Y-m-d') ?: __('texts.none') }} ({{ $taskMaster->duration_planning ?? 0 }} {{ __('texts.day_suffix') }})</div>
             </div>
@@ -179,7 +179,7 @@
 
             <div class="detail-item">
                 <div class="detail-label">{{ __('texts.planned_by') }}</div>
-                <div class="detail-value">{{ $taskMaster->planned_by ?: __('texts.none') }}</div>
+                <div class="detail-value">{{ $taskMaster->planner?->name ?: __('texts.none') }}</div>
             </div>
         </div>
 
@@ -192,12 +192,14 @@
                 <div class="detail-card-list">
                     @foreach ($taskMaster->details as $index => $detail)
                         <div class="detail-card">
-                            <div class="detail-accordion-header">
+                            <div class="detail-accordion-header mb-0">
                                 <div class="detail-value">{{ __('texts.detail') }} #{{ $index + 1 }} - {{ $detail->activity ?: __('texts.none') }}</div>
-                                <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="true">{{ __('texts.hide') }}</button>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="false">{{ __('texts.show') }}</button>
+                                </div>
                             </div>
 
-                            <div id="detailGrid{{ $detail->id ?: $index }}" class="detail-grid detail-grid-accordion is-open" data-accordion-panel>
+                            <div id="detailGrid{{ $detail->id ?: $index }}" class="detail-grid detail-grid-accordion mt-2" data-accordion-panel>
                                 <div class="detail-item">
                                     <div class="detail-label">{{ __('texts.activity_code') }}</div>
                                     <div class="detail-value">{{ $detail->code ?: __('texts.none') }}</div>
@@ -210,13 +212,15 @@
 
                                 <div class="detail-item">
                                     <div class="detail-label">{{ __('texts.date_planning') }}</div>
-                                    <div class="detail-value">{{ optional($detail->date_planning_start)->format('Y-m-d H:i') ?: __('texts.none') }} - {{ optional($detail->date_planning_finish)->format('Y-m-d H:i') ?: __('texts.none') }} ({{ $detail->duration_planning ?? 0 }} {{ __('texts.hours_suffix') }})</div>
+                                    <div class="detail-value">{{ optional($detail->date_planning_start)->format('Y-m-d') ?: __('texts.none') }} - {{ optional($detail->date_planning_finish)->format('Y-m-d') ?: __('texts.none') }} ({{ $detail->duration_planning ?? 0 }} {{ __('texts.hours_suffix') }})</div>
                                 </div>
 
                                 <div class="detail-item detail-item--full">
                                     <div class="detail-label">{{ __('texts.description') }}</div>
                                     <div class="detail-value">{{ $detail->description ?: __('texts.none') }}</div>
                                 </div>
+
+                                <a href="{{ route('task-masters.details.realization.edit', [$taskMaster, $detail]) }}" class="btn btn-sm btn-outline-light">{{ __('texts.submit_realization') }}</a>
                             </div>
                         </div>
                     @endforeach
@@ -280,9 +284,8 @@
             };
 
             panels.forEach(function (panel) {
-                if (panel.classList.contains('is-open')) {
-                    panel.style.maxHeight = panel.scrollHeight + 'px';
-                }
+                panel.classList.remove('is-open');
+                panel.style.maxHeight = '0px';
             });
 
             toggles.forEach(function (button) {
@@ -292,6 +295,8 @@
                 if (!panel) {
                     return;
                 }
+
+                updateToggleLabel(button, false);
 
                 button.addEventListener('click', function () {
                     const isOpen = panel.classList.contains('is-open');

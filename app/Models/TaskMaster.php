@@ -51,6 +51,11 @@ class TaskMaster extends Model
         return $this->belongsTo(TaskCategory::class, 'task_category_id');
     }
 
+    public function planner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'planned_by');
+    }
+
     public function details(): HasMany
     {
         return $this->hasMany(TaskDetail::class, 'task_master_id');

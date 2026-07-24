@@ -54,6 +54,10 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
         ->name('task-masters.details.create');
     Route::post('task-masters/{taskMaster}/details', [TaskDetailController::class, 'store'])
         ->name('task-masters.details.store');
+    Route::get('task-masters/{taskMaster}/details/{taskDetail}/realization', [TaskDetailController::class, 'editRealization'])
+        ->name('task-masters.details.realization.edit');
+    Route::post('task-masters/{taskMaster}/details/{taskDetail}/realization', [TaskDetailController::class, 'submitRealization'])
+        ->name('task-masters.details.realization.update');
     Route::resource('task-masters', TaskMasterController::class);
     Route::resource('task-categories', TaskCategoryController::class);
 });

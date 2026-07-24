@@ -151,6 +151,10 @@ return [
     'planning_start' => 'Planning Start',
     'planning_finish' => 'Planning Finish',
     'save_detail' => 'Save Detail',
+    'submit_realization' => 'Submit Realization',
+    'realization_start' => 'Realization Start',
+    'realization_finish' => 'Realization Finish',
+    'note' => 'Note',
 
     'has_schedule' => 'Has Schedule',
     'interval_value' => 'Interval Value',
@@ -190,6 +194,7 @@ return [
     'success_category_updated' => 'Document category updated successfully.',
     'success_category_deleted' => 'Document category deleted successfully.',
     'success_detail_created' => 'Task detail created successfully.',
+    'success_detail_realization_updated' => 'Task detail realization updated successfully.',
 
     'confirm_delete' => 'Are you sure you want to delete :name?',
     'no_category' => 'No category',

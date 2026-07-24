@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TaskAttachment;
 use App\Models\TaskDetail;
 use App\Models\TaskMaster;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TaskDetailController extends Controller
 {
@@ -15,6 +17,70 @@ class TaskDetailController extends Controller
         return view('task-details.form', [
             'taskMaster' => $taskMaster,
         ]);
+    }
+
+    public function editRealization(TaskMaster $taskMaster, TaskDetail $taskDetail)
+    {
+        return view('task-details.realization-form', [
+            'taskMaster' => $taskMaster,
+            'taskDetail' => $taskDetail,
+        ]);
+    }
+
+    public function submitRealization(Request $request, TaskMaster $taskMaster, TaskDetail $taskDetail)
+    {
+        $data = $request->validate([
+            'date_realization_start' => ['required', 'date'],
+            'date_realization_finish' => ['required', 'date', 'after_or_equal:date_realization_start'],
+            'note' => ['nullable', 'string'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['file', 'max:10240'],
+        ]);
+
+        $start = Carbon::parse($data['date_realization_start']);
+        $finish = Carbon::parse($data['date_realization_finish']);
+
+        $taskDetail->update([
+            'date_realization_start' => $start,
+            'date_realization_finish' => $finish,
+            'duration_realization' => $start->diffInDays($finish),
+            'note' => $data['note'] ?? null,
+            'status' => 2,
+            'updated_by' => Auth::id(),
+        ]);
+
+        foreach ($this->buildAttachmentPayloads($request) as $attachmentPayload) {
+            $taskDetail->attachments()->create([
+                'task_master_id' => $taskMaster->id,
+                ...$attachmentPayload,
+            ]);
+        }
+
+        return redirect()->route('task-masters.show', $taskMaster)
+            ->with('success', __('texts.success_detail_realization_updated'));
+    }
+
+    private function buildAttachmentPayloads(Request $request): array
+    {
+        $validated = $request->validate([
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['file', 'max:10240'],
+        ]);
+
+        $attachments = $validated['attachments'] ?? [];
+
+        return collect($attachments)->map(function ($file) {
+            $storedPath = $file->store('task-attachments', 'public');
+
+            return [
+                'name' => pathinfo($storedPath, PATHINFO_BASENAME),
+                'original_name' => $file->getClientOriginalName(),
+                'path' => $storedPath,
+                'extension' => $file->getClientOriginalExtension(),
+                'size' => (int) ceil($file->getSize() / 1024),
+                'created_by' => Auth::id(),
+            ];
+        })->all();
     }
 
     public function store(Request $request, TaskMaster $taskMaster)
@@ -35,7 +101,7 @@ class TaskDetailController extends Controller
             'activity' => $data['activity'],
             'date_planning_start' => $start,
             'date_planning_finish' => $finish,
-            'duration_planning' => $start->diffInHours($finish),
+            'duration_planning' => $start->diffInDays($finish),
             'description' => $data['description'] ?? null,
             'status' => 0,
             'is_active' => true,

@@ -151,6 +151,10 @@ return [
     'planning_start' => 'Mulai Rencana',
     'planning_finish' => 'Selesai Rencana',
     'save_detail' => 'Simpan Rincian',
+    'submit_realization' => 'Submit Realisasi',
+    'realization_start' => 'Mulai Realisasi',
+    'realization_finish' => 'Selesai Realisasi',
+    'note' => 'Catatan',
 
     'has_schedule' => 'Punya Jadwal',
     'interval_value' => 'Nilai Interval',
@@ -190,6 +194,7 @@ return [
     'success_category_updated' => 'Kategori dokumen berhasil diperbarui.',
     'success_category_deleted' => 'Kategori dokumen berhasil dihapus.',
     'success_detail_created' => 'Rincian tugas berhasil dibuat.',
+    'success_detail_realization_updated' => 'Realisasi rincian tugas berhasil disimpan.',
 
     'confirm_delete' => 'Apakah Anda yakin ingin menghapus :name?',
     'no_category' => 'Tanpa kategori',

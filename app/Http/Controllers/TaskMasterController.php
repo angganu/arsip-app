@@ -487,7 +487,7 @@ class TaskMasterController extends Controller
                 'activity' => $detail['activity'],
                 'date_planning_start' => $start,
                 'date_planning_finish' => $finish,
-                'duration_planning' => $start->diffInHours($finish),
+                'duration_planning' => $start->diffInDays($finish),
                 'description' => $detail['description'] ?? null,
             ];
 
