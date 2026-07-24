@@ -12,6 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class TaskMasterController extends Controller
 {
@@ -340,6 +341,14 @@ class TaskMasterController extends Controller
             ->with('success', __('texts.success_document_deleted'));
     }
 
+    public function hold(TaskMaster $taskMaster)
+    {
+        $taskMaster->update(['status' => 3]);
+
+        return redirect()->route('task-masters.index')
+            ->with('success', __('texts.success_document_updated'));
+    }
+
     private function validateTaskMaster(Request $request, ?TaskMaster $taskMaster = null): array
     {
         $data = $request->validate([
@@ -352,6 +361,17 @@ class TaskMasterController extends Controller
             'interval_value' => ['nullable', 'required_if:has_schedule,1', 'integer', 'min:1'],
             'description' => ['nullable', 'string'],
         ]);
+
+        if ($request->filled('date_planning_start') && $request->filled('date_planning_finish')) {
+            $startDate = Carbon::parse($data['date_planning_start']);
+            $finishDate = Carbon::parse($data['date_planning_finish']);
+
+            if ($finishDate->lt($startDate)) {
+                throw ValidationException::withMessages([
+                    'date_planning_finish' => __('texts.validation_date_range'),
+                ]);
+            }
+        }
 
         $hasSchedule = $request->boolean('has_schedule');
         $startDate = Carbon::parse($data['date_planning_start']);
@@ -452,6 +472,11 @@ class TaskMasterController extends Controller
 
         $validated = $request->validate($rules);
 
+        $parentStart = $request->input('date_planning_start');
+        $parentFinish = $request->input('date_planning_finish');
+        $parentStartDate = $parentStart ? Carbon::parse($parentStart) : null;
+        $parentFinishDate = $parentFinish ? Carbon::parse($parentFinish) : null;
+
         $details = $validated['details'] ?? [];
 
         if ($taskMaster) {
@@ -480,6 +505,18 @@ class TaskMasterController extends Controller
 
             $start = Carbon::parse($detail['date_planning_start']);
             $finish = Carbon::parse($detail['date_planning_finish']);
+
+            if ($parentStartDate && $start->lt($parentStartDate)) {
+                $start = $parentStartDate->copy();
+            }
+
+            if ($parentFinishDate && $finish->gt($parentFinishDate)) {
+                $finish = $parentFinishDate->copy();
+            }
+
+            if ($parentStartDate && $parentFinishDate && $start->gt($finish)) {
+                $finish = $start->copy();
+            }
 
             $payload = [
                 'id' => $detailId > 0 ? $detailId : null,

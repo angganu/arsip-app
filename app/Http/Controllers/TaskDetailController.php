@@ -111,6 +111,20 @@ class TaskDetailController extends Controller
 
         $start = Carbon::parse($data['date_planning_start']);
         $finish = Carbon::parse($data['date_planning_finish']);
+        $parentStart = $taskMaster->date_planning_start ? Carbon::parse($taskMaster->date_planning_start) : null;
+        $parentFinish = $taskMaster->date_planning_finish ? Carbon::parse($taskMaster->date_planning_finish) : null;
+
+        if ($parentStart !== null && $start->copy()->startOfDay()->lt($parentStart->copy()->startOfDay())) {
+            abort(422, 'Detail planning start cannot be earlier than the parent task planning start.');
+        }
+
+        if ($parentFinish !== null && $finish->copy()->startOfDay()->gt($parentFinish->copy()->startOfDay())) {
+            abort(422, 'Detail planning finish cannot be later than the parent task planning finish.');
+        }
+
+        if ($parentStart !== null && $parentFinish !== null && $start->copy()->startOfDay()->gt($parentFinish->copy()->startOfDay())) {
+            abort(422, 'Detail planning start cannot be later than the parent task planning finish.');
+        }
 
         TaskDetail::create([
             'code' => uniqid(),

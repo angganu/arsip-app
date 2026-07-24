@@ -199,6 +199,7 @@ return [
     'success_detail_created' => 'Rincian tugas berhasil dibuat.',
     'success_detail_realization_updated' => 'Realisasi rincian tugas berhasil disimpan.',
 
+    'confirm_hold' => 'Apakah Anda yakin ingin menunda :name?',
     'confirm_delete' => 'Apakah Anda yakin ingin menghapus :name?',
     'no_category' => 'Tanpa kategori',
     'uncategorized' => 'Tanpa kategori',

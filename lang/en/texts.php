@@ -199,6 +199,7 @@ return [
     'success_detail_created' => 'Task detail created successfully.',
     'success_detail_realization_updated' => 'Task detail realization updated successfully.',
 
+    'confirm_hold' => 'Are you sure you want to put :name on hold?',
     'confirm_delete' => 'Are you sure you want to delete :name?',
     'no_category' => 'No category',
     'uncategorized' => 'No category',

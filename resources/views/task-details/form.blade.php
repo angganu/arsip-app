@@ -27,13 +27,13 @@
             <div class="row g-3 mb-3">
                 <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
-                    <input type="date" name="date_planning_start" class="form-control" value="{{ old('date_planning_start') }}" required>
+                    <input type="date" name="date_planning_start" class="form-control" id="datePlanningStart" value="{{ old('date_planning_start') }}" required min="{{ optional($taskMaster->date_planning_start)->format('Y-m-d') }}" max="{{ optional($taskMaster->date_planning_finish)->format('Y-m-d') }}">
                     @error('date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
-                    <input type="date" name="date_planning_finish" class="form-control" value="{{ old('date_planning_finish') }}" required>
+                    <input type="date" name="date_planning_finish" class="form-control" id="datePlanningFinish" value="{{ old('date_planning_finish') }}" required min="{{ optional($taskMaster->date_planning_start)->format('Y-m-d') }}" max="{{ optional($taskMaster->date_planning_finish)->format('Y-m-d') }}">
                     @error('date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
             </div>
@@ -51,3 +51,45 @@
         </form>
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startInput = document.getElementById('datePlanningStart');
+            const finishInput = document.getElementById('datePlanningFinish');
+
+            if (!startInput || !finishInput) {
+                return;
+            }
+
+            const syncDateLimits = function () {
+                const startMin = startInput.getAttribute('min');
+                const finishMax = finishInput.getAttribute('max');
+
+                if (startMin) {
+                    startInput.min = startMin;
+                }
+
+                if (finishMax) {
+                    finishInput.max = finishMax;
+                }
+            };
+
+            startInput.addEventListener('change', function () {
+                if (finishInput.value && finishInput.value < startInput.value) {
+                    finishInput.value = startInput.value;
+                }
+                syncDateLimits();
+            });
+
+            finishInput.addEventListener('change', function () {
+                if (startInput.value && finishInput.value < startInput.value) {
+                    startInput.value = finishInput.value;
+                }
+                syncDateLimits();
+            });
+
+            syncDateLimits();
+        });
+    </script>
+@endpush

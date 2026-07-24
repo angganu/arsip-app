@@ -331,6 +331,112 @@
                 scheduleFields.classList.toggle('d-none', !hasScheduleInput.checked);
             };
 
+            const taskPlanningStartInput = document.querySelector('input[name="date_planning_start"]');
+            const taskPlanningFinishInput = document.querySelector('input[name="date_planning_finish"]');
+
+            const getTaskPlanningRange = function () {
+                return {
+                    start: taskPlanningStartInput?.value || '',
+                    finish: taskPlanningFinishInput?.value || '',
+                };
+            };
+
+            const applyDetailRangeConstraints = function (row) {
+                const startInput = row.querySelector('input[name$="[date_planning_start]"]');
+                const finishInput = row.querySelector('input[name$="[date_planning_finish]"]');
+
+                if (!startInput || !finishInput) {
+                    return;
+                }
+
+                if (!startInput.dataset.rangeBound) {
+                    const constrainValues = function () {
+                        const { start, finish } = getTaskPlanningRange();
+
+                        if (start) {
+                            startInput.setAttribute('min', start);
+                            finishInput.setAttribute('min', start);
+                        } else {
+                            startInput.removeAttribute('min');
+                            finishInput.removeAttribute('min');
+                        }
+
+                        if (finish) {
+                            startInput.setAttribute('max', finish);
+                            finishInput.setAttribute('max', finish);
+                        } else {
+                            startInput.removeAttribute('max');
+                            finishInput.removeAttribute('max');
+                        }
+
+                        if (start && startInput.value && startInput.value < start) {
+                            startInput.value = start;
+                        }
+
+                        if (finish && finishInput.value && finishInput.value > finish) {
+                            finishInput.value = finish;
+                        }
+
+                        if (start && finish && startInput.value && finishInput.value && startInput.value > finishInput.value) {
+                            finishInput.value = startInput.value;
+                        }
+                    };
+
+                    startInput.addEventListener('change', constrainValues);
+                    startInput.addEventListener('input', constrainValues);
+                    finishInput.addEventListener('change', constrainValues);
+                    finishInput.addEventListener('input', constrainValues);
+                    startInput.dataset.rangeBound = '1';
+                    finishInput.dataset.rangeBound = '1';
+                }
+
+                const { start, finish } = getTaskPlanningRange();
+
+                if (start) {
+                    startInput.setAttribute('min', start);
+                    finishInput.setAttribute('min', start);
+                } else {
+                    startInput.removeAttribute('min');
+                    finishInput.removeAttribute('min');
+                }
+
+                if (finish) {
+                    startInput.setAttribute('max', finish);
+                    finishInput.setAttribute('max', finish);
+                } else {
+                    startInput.removeAttribute('max');
+                    finishInput.removeAttribute('max');
+                }
+
+                if (start && startInput.value && startInput.value < start) {
+                    startInput.value = start;
+                }
+
+                if (finish && finishInput.value && finishInput.value > finish) {
+                    finishInput.value = finish;
+                }
+
+                if (start && finish && startInput.value && finishInput.value && startInput.value > finishInput.value) {
+                    finishInput.value = startInput.value;
+                }
+            };
+
+            const syncDetailDateRanges = function () {
+                detailRowsContainer?.querySelectorAll('[data-detail-row]').forEach(function (row) {
+                    applyDetailRangeConstraints(row);
+                });
+            };
+
+            if (taskPlanningStartInput) {
+                taskPlanningStartInput.addEventListener('change', syncDetailDateRanges);
+                taskPlanningStartInput.addEventListener('input', syncDetailDateRanges);
+            }
+
+            if (taskPlanningFinishInput) {
+                taskPlanningFinishInput.addEventListener('change', syncDetailDateRanges);
+                taskPlanningFinishInput.addEventListener('input', syncDetailDateRanges);
+            }
+
             hasScheduleInput.addEventListener('change', toggleScheduleFields);
             toggleScheduleFields();
 
@@ -365,6 +471,8 @@
                     </div>
                 `;
 
+                applyDetailRangeConstraints(wrapper);
+
                 return wrapper;
             };
 
@@ -391,6 +499,8 @@
                         control.setAttribute('name', currentName.replace(/details\[\d+\]/, `details[${index}]`));
                     });
                 });
+
+                syncDetailDateRanges();
             };
 
             const getFileSignature = function (file) {
