@@ -120,6 +120,42 @@
             word-break: break-word;
         }
 
+        .detail-status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.8rem;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .detail-status-badge--new {
+            background: rgba(59, 130, 246, 0.18);
+            border-color: rgba(59, 130, 246, 0.35);
+            color: #bfdbfe;
+        }
+
+        .detail-status-badge--process {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.35);
+            color: #fde68a;
+        }
+
+        .detail-status-badge--done {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.35);
+            color: #bbf7d0;
+        }
+
+        .detail-status-badge--hold {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #fecaca;
+        }
+
         @media (min-width: 768px) {
             .detail-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -190,12 +226,28 @@
             @else
                 <div class="detail-card-list">
                     @foreach ($taskMaster->details as $index => $detail)
-                        @php $isRealized = (int) ($detail->status ?? 0) === 2; @endphp
+                        @php
+                            $isRealized = (int) ($detail->status ?? 0) === 2;
+                            $statusValue = (int) ($detail->status ?? 0);
+                            $statusLabel = match ($statusValue) {
+                                1 => 'On Process',
+                                2 => 'Done',
+                                3 => 'Hold',
+                                default => 'New',
+                            };
+                            $statusClass = match ($statusValue) {
+                                1 => 'detail-status-badge--process',
+                                2 => 'detail-status-badge--done',
+                                3 => 'detail-status-badge--hold',
+                                default => 'detail-status-badge--new',
+                            };
+                        @endphp
                         <div class="detail-card">
                             <div class="detail-accordion-header mb-0">
                                 <div class="detail-value">{{ __('texts.detail') }} #{{ $index + 1 }} - {{ $detail->activity ?: __('texts.none') }}</div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="{{ $isRealized ? 'false' : 'true' }}">{{ $isRealized ? __('texts.show') : __('texts.hide') }}</button>
+                                    <span class="detail-status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                                    <button style="display: none" type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="{{ $isRealized ? 'false' : 'true' }}">{{ $isRealized ? __('texts.show') : __('texts.hide') }}</button>
                                 </div>
                             </div>
 
