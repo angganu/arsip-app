@@ -49,6 +49,8 @@ class TaskDetailController extends Controller
             'updated_by' => Auth::id(),
         ]);
 
+        $this->syncTaskMasterStatus($taskMaster);
+
         foreach ($this->buildAttachmentPayloads($request) as $attachmentPayload) {
             $taskDetail->attachments()->create([
                 'task_master_id' => $taskMaster->id,
@@ -58,6 +60,21 @@ class TaskDetailController extends Controller
 
         return redirect()->route('task-masters.show', $taskMaster)
             ->with('success', __('texts.success_detail_realization_updated'));
+    }
+
+    private function syncTaskMasterStatus(TaskMaster $taskMaster): void
+    {
+        $details = $taskMaster->details()->get();
+
+        if ($details->isEmpty()) {
+            return;
+        }
+
+        $allCompleted = $details->every(fn (TaskDetail $detail) => (int) $detail->status === 2);
+
+        $taskMaster->update([
+            'status' => $allCompleted ? 2 : 1,
+        ]);
     }
 
     private function buildAttachmentPayloads(Request $request): array
