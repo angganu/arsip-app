@@ -120,6 +120,36 @@
             color: #e2e8f0;
         }
 
+        .task-card__dropdown .dropdown-item-success {
+            color: #86efac;
+        }
+
+        .task-card__dropdown .dropdown-item-success:hover,
+        .task-card__dropdown .dropdown-item-success:focus {
+            color: #dcfce7;
+            background: rgba(22, 163, 74, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-warning {
+            color: #fcd34d;
+        }
+
+        .task-card__dropdown .dropdown-item-warning:hover,
+        .task-card__dropdown .dropdown-item-warning:focus {
+            color: #fef3c7;
+            background: rgba(217, 119, 6, 0.25);
+        }
+
+        .task-card__dropdown .dropdown-item-primary {
+            color: #93c5fd;
+        }
+
+        .task-card__dropdown .dropdown-item-primary:hover,
+        .task-card__dropdown .dropdown-item-primary:focus {
+            color: #dbeafe;
+            background: rgba(37, 99, 235, 0.25);
+        }
+
         .task-card__dropdown .dropdown-item:hover,
         .task-card__dropdown .dropdown-item:focus {
             color: #ffffff;
