@@ -4,6 +4,10 @@
 
 @section('content')
     <main class="d-flex flex-column justify-content-center flex-grow-1">
+        
+        <div class="d-flex justify-content-center mb-3">
+            <img src="{{ asset('logo.jpeg') }}" alt="RSMP Sumedang Logo" class="img-fluid" style="max-height: 150px; object-fit: contain;">
+        </div>
         <section class="app-card p-4 p-sm-4">
             <p class="text-uppercase small mb-1 text-info fw-semibold">RSMP SUMEDANG</p>
             <h1 class="h3 mb-2">{{ __('texts.login_to_account') }}</h1>
