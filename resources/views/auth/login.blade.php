@@ -9,9 +9,11 @@
             <img src="{{ asset('logo.jpeg') }}" alt="RSMP Sumedang Logo" class="img-fluid" style="max-height: 150px; object-fit: contain;">
         </div>
         <section class="app-card p-4 p-sm-4">
-            <p class="text-uppercase small mb-1 text-info fw-semibold">RSMP SUMEDANG</p>
-            <h1 class="h3 mb-2">{{ __('texts.login_to_account') }}</h1>
-            <p class="text-light-emphasis mb-4">{{ __('texts.access_dashboard_by_role') }}</p>
+            <div class="text-center mb-5">
+                <p class="text-uppercase small mb-1 text-info fw-semibold">{{ __('texts.app_name') }}</p>
+                <h1 class="h3 mb-4">{{ __('texts.login_to_account') }}</h1>
+                <!-- <p class="text-light-emphasis mb-4">{{ __('texts.access_dashboard_by_role') }}</p> -->
+            </div>
 
             @if ($errors->any())
                 <div class="alert alert-danger py-2" role="alert">

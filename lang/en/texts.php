@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'app_name' => 'Arsip App',
+    'app_name' => 'RSMP SUMEDANG',
     'menu' => 'Menu',
     'profile' => 'Profile',
     'login' => 'Login',
