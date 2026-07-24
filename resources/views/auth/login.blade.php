@@ -34,14 +34,26 @@
 
                 <div>
                     <label for="password" class="form-label">{{ __('texts.password') }}</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        class="form-control form-control-lg"
-                        placeholder="{{ __('texts.enter_password') }}"
-                    >
+                    <div class="position-relative">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            class="form-control form-control-lg pe-5"
+                            placeholder="{{ __('texts.enter_password') }}"
+                        >
+                        <button
+                            type="button"
+                            class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-light-emphasis"
+                            data-password-toggle
+                            aria-label="Show password"
+                        >
+                            <svg class="password-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M8 13c-3.5 0-6-3.2-6-5 0-1.8 2.5-5 6-5s6 3.2 6 5c0 1.8-2.5 5-6 5m0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-check">
@@ -59,4 +71,22 @@
             <p class="mb-0 small text-light-emphasis">admin@example.com / password123</p>
         </section>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.querySelector('[data-password-toggle]');
+
+            if (!toggleButton) {
+                return;
+            }
+
+            toggleButton.addEventListener('click', function () {
+                const passwordInput = document.getElementById('password');
+                const isPasswordHidden = passwordInput.type === 'password';
+
+                passwordInput.type = isPasswordHidden ? 'text' : 'password';
+                toggleButton.setAttribute('aria-label', isPasswordHidden ? 'Hide password' : 'Show password');
+            });
+        });
+    </script>
 @endsection
