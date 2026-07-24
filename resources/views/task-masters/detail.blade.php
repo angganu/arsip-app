@@ -45,6 +45,7 @@
             border-radius: 0.85rem;
             background: rgba(2, 6, 23, 0.2);
             padding: 1rem;
+            cursor: pointer;
         }
 
         .detail-accordion-header {
@@ -137,12 +138,12 @@
             </div>
         </div> -->
 
-        <div class="detail-accordion-header">
+        <div class="detail-accordion-header" data-main-accordion-header>
             <h2 class="detail-section-title mb-0">{{ __('texts.task_information') }}</h2>
             <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#documentDetailGrid" aria-expanded="false">{{ __('texts.show') }}</button>
         </div>
 
-        <div id="documentDetailGrid" class="detail-grid detail-grid-accordion" data-accordion-panel>
+        <div id="documentDetailGrid" class="detail-grid detail-grid-accordion" data-accordion-panel data-main-panel>
             <div class="detail-item">
                 <div class="detail-label">{{ __('texts.code') }}</div>
                 <div class="detail-value">{{ $taskMaster->code ?: __('texts.none') }}</div>
@@ -293,6 +294,19 @@
                 button.textContent = expanded ? hideLabel : showLabel;
             };
 
+            const togglePanelState = function (button, panel) {
+                const isOpen = panel.classList.contains('is-open');
+
+                if (isOpen) {
+                    closePanel(panel);
+                    updateToggleLabel(button, false);
+                    return;
+                }
+
+                openPanel(panel);
+                updateToggleLabel(button, true);
+            };
+
             panels.forEach(function (panel) {
                 if (panel.id.startsWith('detailGrid')) {
                     const isDefaultOpen = panel.dataset.status !== '2';
@@ -323,19 +337,42 @@
                 const isDefaultOpen = panel.id.startsWith('detailGrid') && panel.dataset.status !== '2';
                 updateToggleLabel(button, isDefaultOpen);
 
-                button.addEventListener('click', function () {
-                    const isOpen = panel.classList.contains('is-open');
+                button.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    togglePanelState(button, panel);
+                });
+            });
 
-                    if (isOpen) {
-                        closePanel(panel);
-                        updateToggleLabel(button, false);
+            document.querySelectorAll('.detail-card').forEach(function (card) {
+                const panel = card.querySelector('[data-accordion-panel]');
+                const button = card.querySelector('[data-accordion-toggle]');
+
+                if (!panel || !button) {
+                    return;
+                }
+
+                card.addEventListener('click', function (event) {
+                    if (event.target.closest('button, a, input, select, textarea')) {
                         return;
                     }
 
-                    openPanel(panel);
-                    updateToggleLabel(button, true);
+                    togglePanelState(button, panel);
                 });
             });
+
+            const mainHeader = document.querySelector('[data-main-accordion-header]');
+            const mainPanel = document.querySelector('[data-main-panel]');
+            const mainToggle = document.querySelector('[data-main-panel]') ? document.querySelector('main [data-accordion-toggle]') : null;
+
+            if (mainHeader && mainPanel && mainToggle) {
+                mainHeader.addEventListener('click', function (event) {
+                    if (event.target.closest('button, a, input, select, textarea')) {
+                        return;
+                    }
+
+                    togglePanelState(mainToggle, mainPanel);
+                });
+            }
 
             window.addEventListener('resize', function () {
                 panels.forEach(function (panel) {
