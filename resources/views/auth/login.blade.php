@@ -5,7 +5,7 @@
 @section('content')
     <main class="d-flex flex-column justify-content-center flex-grow-1">
         <section class="app-card p-4 p-sm-4">
-            <p class="text-uppercase small mb-1 text-info fw-semibold">Arsip App</p>
+            <p class="text-uppercase small mb-1 text-info fw-semibold">RSMP SUMEDANG</p>
             <h1 class="h3 mb-2">{{ __('texts.login_to_account') }}</h1>
             <p class="text-light-emphasis mb-4">{{ __('texts.access_dashboard_by_role') }}</p>
 
@@ -65,11 +65,11 @@
             </form>
         </section>
 
-        <section class="app-card p-3 mt-3">
+        <!-- <section class="app-card p-3 mt-3">
             <p class="mb-1 fw-semibold">{{ __('texts.seed_sample_accounts') }}</p>
             <p class="mb-1 small text-light-emphasis">manager@example.com / password123</p>
             <p class="mb-0 small text-light-emphasis">admin@example.com / password123</p>
-        </section>
+        </section> -->
     </main>
 
     <script>

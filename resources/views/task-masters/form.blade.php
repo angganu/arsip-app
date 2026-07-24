@@ -204,13 +204,13 @@
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
+                                <input type="date" name="details[{{ $index }}][date_planning_start]" class="form-control" value="{{ $detailRow['date_planning_start'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
+                                <input type="date" name="details[{{ $index }}][date_planning_finish]" class="form-control" value="{{ $detailRow['date_planning_finish'] ?? '' }}" {{ $isDetailLocked ? 'readonly' : '' }}>
                                 @error('details.' . $index . '.date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
@@ -236,12 +236,12 @@
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[0][date_planning_start]" class="form-control" value="">
+                                <input type="date" name="details[0][date_planning_start]" class="form-control" value="">
                             </div>
 
                             <div class="col-6 col-md-6">
                                 <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="details[0][date_planning_finish]" class="form-control" value="">
+                                <input type="date" name="details[0][date_planning_finish]" class="form-control" value="">
                             </div>
 
                             <div class="col-12">
@@ -352,11 +352,11 @@
                         </div>
                         <div class="col-6 col-md-6">
                             <label class="form-label">${planningStartLabel} <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="details[${index}][date_planning_start]" class="form-control">
+                            <input type="date" name="details[${index}][date_planning_start]" class="form-control">
                         </div>
                         <div class="col-6 col-md-6">
                             <label class="form-label">${planningFinishLabel} <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="details[${index}][date_planning_finish]" class="form-control">
+                            <input type="date" name="details[${index}][date_planning_finish]" class="form-control">
                         </div>
                         <div class="col-12">
                             <label class="form-label">${descriptionLabel}</label>

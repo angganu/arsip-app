@@ -200,7 +200,7 @@
         </section>
 
         <section class="row g-3">
-            <div class="col-12 col-xl-8">
+            <!-- <div class="col-12 col-xl-8">
                 <div class="chart-card h-100">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
@@ -212,7 +212,7 @@
                         <canvas id="planningRealizationChart"></canvas>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="col-12 col-xl-4">
                 <div class="chart-card h-100">

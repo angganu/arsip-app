@@ -27,13 +27,13 @@
             <div class="row g-3 mb-3">
                 <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.planning_start') }} <span class="text-danger">*</span></label>
-                    <input type="datetime-local" name="date_planning_start" class="form-control" value="{{ old('date_planning_start') }}" required>
+                    <input type="date" name="date_planning_start" class="form-control" value="{{ old('date_planning_start') }}" required>
                     @error('date_planning_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.planning_finish') }} <span class="text-danger">*</span></label>
-                    <input type="datetime-local" name="date_planning_finish" class="form-control" value="{{ old('date_planning_finish') }}" required>
+                    <input type="date" name="date_planning_finish" class="form-control" value="{{ old('date_planning_finish') }}" required>
                     @error('date_planning_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
             </div>
