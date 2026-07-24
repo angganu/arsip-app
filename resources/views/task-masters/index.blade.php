@@ -110,66 +110,6 @@
             align-items: center;
         }
 
-        .task-card__dropdown .dropdown-menu {
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            min-width: 13rem;
-        }
-
-        .task-card__dropdown .dropdown-item {
-            color: #e2e8f0;
-        }
-
-        .task-card__dropdown .dropdown-item-success {
-            color: #86efac;
-        }
-
-        .task-card__dropdown .dropdown-item-success:hover,
-        .task-card__dropdown .dropdown-item-success:focus {
-            color: #dcfce7;
-            background: rgba(22, 163, 74, 0.25);
-        }
-
-        .task-card__dropdown .dropdown-item-warning {
-            color: #fcd34d;
-        }
-
-        .task-card__dropdown .dropdown-item-warning:hover,
-        .task-card__dropdown .dropdown-item-warning:focus {
-            color: #fef3c7;
-            background: rgba(217, 119, 6, 0.25);
-        }
-
-        .task-card__dropdown .dropdown-item-primary {
-            color: #93c5fd;
-        }
-
-        .task-card__dropdown .dropdown-item-primary:hover,
-        .task-card__dropdown .dropdown-item-primary:focus {
-            color: #dbeafe;
-            background: rgba(37, 99, 235, 0.25);
-        }
-
-        .task-card__dropdown .dropdown-item:hover,
-        .task-card__dropdown .dropdown-item:focus {
-            color: #ffffff;
-            background: rgba(59, 130, 246, 0.2);
-        }
-
-        .task-card__dropdown .dropdown-divider {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .task-card__dropdown .dropdown-item-danger {
-            color: #fca5a5;
-        }
-
-        .task-card__dropdown .dropdown-item-danger:hover,
-        .task-card__dropdown .dropdown-item-danger:focus {
-            color: #fecaca;
-            background: rgba(220, 38, 38, 0.25);
-        }
-
         .chat-count {
             display: inline-flex;
             align-items: center;
@@ -324,6 +264,7 @@
                     </div>
 
                     <hr>
+                    @if ($isManager ?? false)
                     <div class="task-card__actions">
                         <div class="dropdown task-card__dropdown">
                             <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -331,10 +272,8 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item dropdown-item-success">{{ __('texts.view') }}</a></li>
-                                @if ($isManager ?? false)
-                                    <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
-                                    <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
-                                @endif
+                                <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
+                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('task-masters.destroy', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
@@ -352,6 +291,24 @@
                             @endif
                         </a>
                     </div>
+                    @else
+                    <div class="task-card__actions">
+                        <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">{{ __('texts.view') }}</a>
+                        <!-- <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.manage') }}</a> -->
+                        <!-- <a href="{{ route('task-masters.details.create', $task) }}" class="btn btn-sm btn-outline-primary">{{ __('texts.task_detail_add_button') }}</a> -->
+                        <form action="{{ route('task-masters.destroy', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
+                        </form>
+                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">
+                            {{ __('texts.chat') }}
+                            @if ($unreadDiscussions > 0)
+                                <span class="chat-count">{{ $unreadDiscussions }}</span>
+                            @endif
+                        </a>
+                    </div>
+                    @endif
                 </div>
             @empty
                 <div class="text-center text-light-emphasis py-3">{{ __('texts.no_documents_found') }}</div>
