@@ -138,6 +138,7 @@ return [
     'activity_name' => 'Nama Aktivitas',
     'date_planning' => 'Tanggal Perencanaan',
     'hours_suffix' => 'jam',
+    'days_suffix' => 'hari',
     'no_task_details' => 'Tidak ada rincian tugas.',
     'no_attachments' => 'Tidak ada lampiran.',
     'task_title' => 'Judul Tugas',
@@ -200,5 +201,6 @@ return [
     'no_category' => 'Tanpa kategori',
     'uncategorized' => 'Tanpa kategori',
     'realization' => 'Realisasi',
+    'date_realization' => 'Tanggal Realization',
     'none' => '—',
 ];

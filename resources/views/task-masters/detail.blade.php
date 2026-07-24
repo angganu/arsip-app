@@ -9,10 +9,6 @@
             gap: 1rem;
         }
 
-        .detail-section {
-            margin-top: 2rem;
-        }
-
         .detail-section-title {
             color: #f8fafc;
             font-size: 1rem;
@@ -41,7 +37,7 @@
 
         .detail-card-list {
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .detail-card {
@@ -134,7 +130,7 @@
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => route('admin.dashboard'), 'pageTitle' => __('texts.document_detail')])
 
-    <main class="app-card p-3 flex-grow-1" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
+    <main class="app-card p-3 flex-grow-1 mb-2" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
         <!-- <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <p class="text-light small mb-0">View all saved values for this document.</p>
@@ -182,7 +178,9 @@
                 <div class="detail-value">{{ $taskMaster->planner?->name ?: __('texts.none') }}</div>
             </div>
         </div>
+    </main>
 
+    <main class="app-card p-3 flex-grow-1" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
         <section class="detail-section">
             <h2 class="detail-section-title">{{ __('texts.task_details') }} ({{ $taskMaster->details->count() }})</h2>
 
@@ -191,15 +189,16 @@
             @else
                 <div class="detail-card-list">
                     @foreach ($taskMaster->details as $index => $detail)
+                        @php $isRealized = (int) ($detail->status ?? 0) === 2; @endphp
                         <div class="detail-card">
                             <div class="detail-accordion-header mb-0">
                                 <div class="detail-value">{{ __('texts.detail') }} #{{ $index + 1 }} - {{ $detail->activity ?: __('texts.none') }}</div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="false">{{ __('texts.show') }}</button>
+                                    <button type="button" class="detail-accordion-toggle" data-accordion-toggle data-target="#detailGrid{{ $detail->id ?: $index }}" aria-expanded="{{ $isRealized ? 'false' : 'true' }}">{{ $isRealized ? __('texts.show') : __('texts.hide') }}</button>
                                 </div>
                             </div>
 
-                            <div id="detailGrid{{ $detail->id ?: $index }}" class="detail-grid detail-grid-accordion mt-2" data-accordion-panel>
+                            <div id="detailGrid{{ $detail->id ?: $index }}" class="detail-grid detail-grid-accordion mt-2{{ $isRealized ? '' : ' is-open' }}" data-accordion-panel data-status="{{ (int) ($detail->status ?? 0) }}">
                                 <div class="detail-item">
                                     <div class="detail-label">{{ __('texts.activity_code') }}</div>
                                     <div class="detail-value">{{ $detail->code ?: __('texts.none') }}</div>
@@ -212,22 +211,33 @@
 
                                 <div class="detail-item">
                                     <div class="detail-label">{{ __('texts.date_planning') }}</div>
-                                    <div class="detail-value">{{ optional($detail->date_planning_start)->format('Y-m-d') ?: __('texts.none') }} - {{ optional($detail->date_planning_finish)->format('Y-m-d') ?: __('texts.none') }} ({{ $detail->duration_planning ?? 0 }} {{ __('texts.hours_suffix') }})</div>
+                                    <div class="detail-value">{{ optional($detail->date_planning_start)->format('Y-m-d') ?: __('texts.none') }} - {{ optional($detail->date_planning_finish)->format('Y-m-d') ?: __('texts.none') }} ({{ $detail->duration_planning ?? 0 }} {{ __('texts.days_suffix') }})</div>
                                 </div>
+
+                                @if ($isRealized)
+                                    <div class="detail-item detail-item--full">
+                                        <div class="detail-label">{{ __('texts.date_realization') }}</div>
+                                        <div class="detail-value">{{ optional($detail->date_realization_start)->format('Y-m-d') ?: __('texts.none') }} - {{ optional($detail->date_realization_finish)->format('Y-m-d') ?: __('texts.none') }} ({{ $detail->duration_realization ?? 0 }} {{ __('texts.days_suffix') }})</div>
+                                    </div>
+                                @endif
 
                                 <div class="detail-item detail-item--full">
                                     <div class="detail-label">{{ __('texts.description') }}</div>
                                     <div class="detail-value">{{ $detail->description ?: __('texts.none') }}</div>
                                 </div>
 
-                                <a href="{{ route('task-masters.details.realization.edit', [$taskMaster, $detail]) }}" class="btn btn-sm btn-outline-light">{{ __('texts.submit_realization') }}</a>
+                                @if (!$isRealized)
+                                    <a href="{{ route('task-masters.details.realization.edit', [$taskMaster, $detail]) }}" class="btn btn-sm btn-outline-success">{{ __('texts.submit_realization') }}</a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
                 </div>
             @endif
         </section>
+    </main>
 
+    <main class="app-card p-3 flex-grow-1 mt-2" data-hide-label="{{ __('texts.hide') }}" data-show-label="{{ __('texts.show') }}">
         <section class="detail-section">
             <h2 class="detail-section-title">{{ __('texts.task_attachments') }} ({{ $taskMaster->attachments->count() }})</h2>
 
@@ -284,6 +294,20 @@
             };
 
             panels.forEach(function (panel) {
+                if (panel.id.startsWith('detailGrid')) {
+                    const isDefaultOpen = panel.dataset.status !== '2';
+
+                    if (isDefaultOpen) {
+                        panel.classList.add('is-open');
+                        panel.style.maxHeight = panel.scrollHeight + 'px';
+                    } else {
+                        panel.classList.remove('is-open');
+                        panel.style.maxHeight = '0px';
+                    }
+
+                    return;
+                }
+
                 panel.classList.remove('is-open');
                 panel.style.maxHeight = '0px';
             });
@@ -296,7 +320,8 @@
                     return;
                 }
 
-                updateToggleLabel(button, false);
+                const isDefaultOpen = panel.id.startsWith('detailGrid') && panel.dataset.status !== '2';
+                updateToggleLabel(button, isDefaultOpen);
 
                 button.addEventListener('click', function () {
                     const isOpen = panel.classList.contains('is-open');

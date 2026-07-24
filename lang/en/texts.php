@@ -138,6 +138,7 @@ return [
     'activity_name' => 'Activity Name',
     'date_planning' => 'Date Planning',
     'hours_suffix' => 'hours',
+    'days_suffix' => 'days',
     'no_task_details' => 'No task details available.',
     'no_attachments' => 'No attachments available.',
     'task_title' => 'Task Title',
@@ -200,5 +201,6 @@ return [
     'no_category' => 'No category',
     'uncategorized' => 'No category',
     'realization' => 'Realization',
+    'date_realization' => 'Date Realization',
     'none' => '—',
 ];
