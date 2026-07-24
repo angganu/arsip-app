@@ -104,6 +104,8 @@ return [
     'on_progress' => 'On Progress',
     'done' => 'Done',
     'hold' => 'Hold',
+    'overtime' => 'Overtime',
+    'on_time' => 'On Time',
     'all' => 'All',
     'all_category' => 'All Category',
     'all_categories' => 'All categories',

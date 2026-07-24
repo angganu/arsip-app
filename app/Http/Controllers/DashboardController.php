@@ -89,6 +89,34 @@ class DashboardController extends Controller
             return [$status => $tasks->where('status', $status)->count()];
         })->all();
 
+        $timingLabels = [
+            'overtime' => __('texts.overtime'),
+            'on_time' => __('texts.on_time'),
+        ];
+
+        $timingCounts = [
+            'overtime' => $tasks->filter(function (TaskMaster $task) {
+                $plannedFinish = $task->date_planning_finish;
+                $realizationFinish = $task->date_realization_finish;
+
+                if ($plannedFinish === null || $realizationFinish === null) {
+                    return false;
+                }
+
+                return $realizationFinish->copy()->startOfDay()->greaterThan($plannedFinish->copy()->startOfDay());
+            })->count(),
+            'on_time' => $tasks->filter(function (TaskMaster $task) {
+                $plannedFinish = $task->date_planning_finish;
+                $realizationFinish = $task->date_realization_finish;
+
+                if ($plannedFinish === null || $realizationFinish === null) {
+                    return false;
+                }
+
+                return $realizationFinish->copy()->startOfDay()->lessThanOrEqualTo($plannedFinish->copy()->startOfDay());
+            })->count(),
+        ];
+
         $taskCategories = TaskCategory::query()
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -168,6 +196,8 @@ class DashboardController extends Controller
             'taskDetails' => $tasks,
             'statusLabels' => $statusLabels,
             'statusCounts' => $statusCounts,
+            'timingLabels' => $timingLabels,
+            'timingCounts' => $timingCounts,
             'lineChartLabels' => $labels,
             'planningSeries' => $planningSeries,
             'realizationSeries' => $realizationSeries,

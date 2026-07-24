@@ -102,7 +102,7 @@
     @stack('styles')
 </head>
 <body>
-    <div class="app-shell d-flex flex-column p-1 p-sm-4">
+    <div class="app-shell d-flex flex-column p-2 p-sm-4">
         @yield('content')
     </div>
 

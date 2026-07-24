@@ -104,6 +104,8 @@ return [
     'on_progress' => 'Sedang Proses',
     'done' => 'Selesai',
     'hold' => 'Tertunda',
+    'overtime' => 'Terlambat',
+    'on_time' => 'Tepat Waktu',
     'all' => 'Semua',
     'all_category' => 'Semua Kategori',
     'all_categories' => 'Semua kategori',

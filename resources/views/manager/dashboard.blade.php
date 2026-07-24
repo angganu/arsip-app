@@ -192,9 +192,17 @@
                         <div class="metric-card">
                             <div class="small text-light text-uppercase">{{ $label }}</div>
                             <div class="metric-card__value mt-2 {{ $statusClass }}">{{ $statusCounts[$status] ?? 0 }} {{ __('texts.task') }}</div>
-                            <!-- <div class="small text-light-emphasis mt-2">Task details in the selected date range</div> -->
                         </div>
                     </a>
+                </div>
+            @endforeach
+
+            @foreach ($timingLabels as $timingKey => $timingLabel)
+                <div class="col-6 col-sm-6 col-xl-3">
+                    <div class="metric-card">
+                        <div class="small text-light text-uppercase">{{ $timingLabel }}</div>
+                        <div class="metric-card__value mt-2 {{ $timingKey === 'overtime' ? 'metric-card__value--hold' : 'metric-card__value--done' }}">{{ $timingCounts[$timingKey] ?? 0 }} {{ __('texts.task') }}</div>
+                    </div>
                 </div>
             @endforeach
         </section>

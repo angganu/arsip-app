@@ -16,13 +16,13 @@
             @csrf
 
             <div class="row g-3 mb-3">
-                <div class="col-12 col-md-6">
+                <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.realization_start') }} <span class="text-danger">*</span></label>
                     <input type="date" name="date_realization_start" class="form-control" value="{{ old('date_realization_start', optional($taskDetail->date_realization_start)->format('Y-m-d')) }}" required>
                     @error('date_realization_start') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="col-12 col-md-6">
+                <div class="col-6 col-md-6">
                     <label class="form-label">{{ __('texts.realization_finish') }} <span class="text-danger">*</span></label>
                     <input type="date" name="date_realization_finish" class="form-control" value="{{ old('date_realization_finish', optional($taskDetail->date_realization_finish)->format('Y-m-d')) }}" required>
                     @error('date_realization_finish') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
