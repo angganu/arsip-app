@@ -492,7 +492,7 @@ class TaskMasterController extends Controller
             }
         }
 
-        return collect($details)->map(function ($detail) {
+        return collect($details)->map(function ($detail) use ($parentStartDate, $parentFinishDate) {
             $detailId = isset($detail['id']) ? (int) $detail['id'] : 0;
             $detailStatus = isset($detail['status']) ? (int) $detail['status'] : 0;
 
