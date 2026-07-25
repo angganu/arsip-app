@@ -70,4 +70,9 @@ class TaskMaster extends Model
     {
         return $this->hasMany(TaskDiscussion::class, 'task_master_id');
     }
+
+    public function archives(): HasMany
+    {
+        return $this->hasMany(TaskMasterArchive::class, 'task_master_id');
+    }
 }

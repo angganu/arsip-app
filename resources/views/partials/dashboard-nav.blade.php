@@ -18,10 +18,11 @@
     $currentLocale = app()->getLocale();
 
     $isDashboardActive = request()->routeIs(['admin.dashboard', 'manager.dashboard']);
-    $isDocumentMenuActive = request()->routeIs(['task-categories.*', 'task-masters.*']);
+    $isDocumentMenuActive = request()->routeIs(['task-categories.*', 'task-masters.*', 'task-master-archives.*']);
     $isCreateDocumentActive = request()->routeIs('task-masters.create');
     $isListDocumentActive = request()->routeIs(['task-masters.index', 'task-masters.show', 'task-masters.edit', 'task-masters.details.*', 'task-masters.discussion.*']);
     $isTaskCategoryActive = request()->routeIs('task-categories.*');
+    $isArchiveMenuActive = request()->routeIs('task-master-archives.*');
     $isDepartmentActive = request()->routeIs('departments.*');
     $isUserMenuActive = request()->routeIs('base-users.*');
     $isReportActive = request()->routeIs('reports.task-masters.*');
@@ -140,6 +141,10 @@
 
                 <li class="nav-item">
                     <a class="nav-link {{ $isReportActive ? 'active' : '' }}" href="{{ route('reports.task-masters.index') }}">{{ __('texts.report') }}</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ $isArchiveMenuActive ? 'active' : '' }}" href="{{ route('task-master-archives.index') }}">{{ __('texts.archive_files') }}</a>
                 </li>
 
                 @if ($isManager)

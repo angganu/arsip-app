@@ -354,6 +354,15 @@
                                 <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item dropdown-item-success">{{ __('texts.view') }}</a></li>
                                 <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
                                 <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
+                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
+                                <li>
+                                    <form action="{{ route('task-masters.archive', $task) }}" method="POST" class="ms-auto">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-light">
+                                            <i class="fas fa-file-pdf"></i> {{ __('texts.archive') }}
+                                        </button>
+                                    </form>
+                                </li>
                                 <li>
                                     <form action="{{ route('task-masters.hold', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_hold', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
                                         @csrf
@@ -381,6 +390,7 @@
                     @else
                     <div class="task-card__actions">
                         <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">{{ __('texts.view') }}</a>
+                        
                         <!-- <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.manage') }}</a> -->
                         <!-- <a href="{{ route('task-masters.details.create', $task) }}" class="btn btn-sm btn-outline-primary">{{ __('texts.task_detail_add_button') }}</a> -->
                         <form action="{{ route('task-masters.destroy', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
@@ -388,7 +398,13 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
                         </form>
-                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info ms-auto">
+                        <form action="{{ route('task-masters.archive', $task) }}" method="POST" class="ms-auto">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-light">
+                                <i class="fas fa-file-pdf"></i> {{ __('texts.archive') }}
+                            </button>
+                        </form>
+                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info">
                             {{ __('texts.chat') }}
                             @if ($unreadDiscussions > 0)
                                 <span class="chat-count">{{ $unreadDiscussions }}</span>

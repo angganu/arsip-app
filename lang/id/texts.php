@@ -74,6 +74,8 @@ return [
     'show' => 'Tampilkan',
     'hide' => 'Sembunyikan',
     'add' => 'Tambah',
+    'archive' => 'Arsipkan',
+    'download' => 'Unduh',
 
     'keyword' => 'Kata kunci',
     'status' => 'Status',
@@ -234,4 +236,13 @@ return [
     'report_schedule_yes' => 'Hanya terjadwal',
     'report_schedule_no' => 'Hanya tanpa jadwal',
     'report_no_realization' => 'Belum ada realisasi',
+
+    'archive_files' => 'File Arsip',
+    'archive_history_subtitle' => 'Riwayat PDF yang sudah digenerate dan dapat diunduh kembali.',
+    'archive_document_title' => 'Arsip Task Master',
+    'generated_at' => 'Dibuat pada',
+    'generated_by' => 'Dibuat oleh',
+    'file_size' => 'Ukuran File',
+    'no_archive_files' => 'Belum ada file arsip.',
+    'archive_generated_for_task' => 'Arsip dibuat untuk tugas :name',
 ];

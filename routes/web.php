@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskCategoryController;
 use App\Http\Controllers\TaskDetailController;
 use App\Http\Controllers\TaskDiscussionController;
 use App\Http\Controllers\TaskMasterController;
+use App\Http\Controllers\TaskMasterArchiveController;
 use App\Http\Controllers\TaskMasterReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +67,12 @@ Route::middleware(['auth', 'role:administrator,manager'])->group(function () {
         ->name('task-masters.details.realization.update');
     Route::post('task-masters/{taskMaster}/hold', [TaskMasterController::class, 'hold'])
         ->name('task-masters.hold');
+    Route::post('task-masters/{taskMaster}/archive', [TaskMasterArchiveController::class, 'store'])
+        ->name('task-masters.archive');
+    Route::get('task-master-archives', [TaskMasterArchiveController::class, 'index'])
+        ->name('task-master-archives.index');
+    Route::get('task-master-archives/{taskMasterArchive}/download', [TaskMasterArchiveController::class, 'download'])
+        ->name('task-master-archives.download');
     Route::resource('task-masters', TaskMasterController::class);
     Route::resource('task-categories', TaskCategoryController::class);
 });
