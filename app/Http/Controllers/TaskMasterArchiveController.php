@@ -93,6 +93,10 @@ class TaskMasterArchiveController extends Controller
             'created_by' => $user?->id,
         ]);
 
+        $taskMaster->update([
+            'archived' => 1,
+        ]);
+
         return response()->streamDownload(function () use ($pdfBinary) {
             echo $pdfBinary;
         }, $filename, [

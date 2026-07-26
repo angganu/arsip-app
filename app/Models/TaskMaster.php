@@ -31,6 +31,7 @@ class TaskMaster extends Model
         'duration_realization',
         'priority',
         'status',
+        'archived',
         'is_active',
         'created_by',
         'updated_by',

@@ -211,6 +211,15 @@ class TaskMasterController extends Controller
             $taskMaster = TaskMaster::create($data);
 
             if ($detailPayloads !== []) {
+                $detailPayloads = collect($detailPayloads)
+                    ->values()
+                    ->map(function (array $payload, int $index) use ($taskMaster) {
+                        $payload['code'] = $this->formatTaskDetailCode($taskMaster->code, $index + 1);
+
+                        return $payload;
+                    })
+                    ->all();
+
                 $taskMaster->details()->createMany($detailPayloads);
             }
 
@@ -272,6 +281,7 @@ class TaskMasterController extends Controller
 
         DB::transaction(function () use ($taskMaster, $data, $detailPayloads, $attachmentPayloads, $keptAttachmentIds) {
             $taskMaster->update($data);
+            $nextDetailIndex = $this->resolveNextTaskDetailIndex($taskMaster);
 
             $existingDetails = $taskMaster->details()->get()->keyBy('id');
             $submittedIds = collect($detailPayloads)
@@ -319,7 +329,10 @@ class TaskMasterController extends Controller
                     continue;
                 }
 
-                $taskMaster->details()->create(Arr::except($detailPayload, ['id', 'status']));
+                $newPayload = Arr::except($detailPayload, ['id', 'status']);
+                $newPayload['code'] = $this->formatTaskDetailCode($taskMaster->code, $nextDetailIndex);
+                $taskMaster->details()->create($newPayload);
+                $nextDetailIndex++;
             }
 
             $this->deleteRemovedAttachments($taskMaster, $keptAttachmentIds);
@@ -377,7 +390,7 @@ class TaskMasterController extends Controller
         $startDate = Carbon::parse($data['date_planning_start']);
         $finishDate = Carbon::parse($data['date_planning_finish']);
 
-        $data['code'] = $taskMaster?->code ?: uniqid();
+        $data['code'] = $taskMaster?->code ?: $this->generateTaskMasterCode((int) $data['task_category_id']);
         $data['planned_by'] = $taskMaster?->planned_by ?: Auth::id();
         $data['has_schedule'] = $hasSchedule;
         $data['interval_schedule'] = $hasSchedule
@@ -419,6 +432,37 @@ class TaskMasterController extends Controller
             4 => 'Years',
             default => 'No schedule',
         };
+    }
+
+    private function generateTaskMasterCode(int $taskCategoryId): string
+    {
+        $categoryCode = TaskCategory::query()
+            ->whereKey($taskCategoryId)
+            ->value('code');
+
+        $categoryCode = strtoupper(trim((string) $categoryCode));
+
+        if ($categoryCode === '') {
+            throw ValidationException::withMessages([
+                'task_category_id' => 'Selected task category does not have a valid code.',
+            ]);
+        }
+
+        $period = Carbon::now()->format('ym');
+        $prefix = "{$categoryCode}.{$period}";
+
+        $latestCode = TaskMaster::withTrashed()
+            ->where('code', 'like', $prefix . '%')
+            ->orderByDesc('id')
+            ->value('code');
+
+        $nextNumber = 1;
+
+        if (is_string($latestCode) && preg_match('/^' . preg_quote($prefix, '/') . '(\d+)$/', $latestCode, $matches) === 1) {
+            $nextNumber = ((int) $matches[1]) + 1;
+        }
+
+        return $prefix . str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     private function validateTaskDetails(Request $request, ?TaskMaster $taskMaster = null): array
@@ -528,12 +572,41 @@ class TaskMasterController extends Controller
                 'description' => $detail['description'] ?? null,
             ];
 
-            if ($detailId === 0) {
-                $payload['code'] = uniqid();
-            }
-
             return $payload;
         })->all();
+    }
+
+    private function formatTaskDetailCode(string $taskMasterCode, int $index): string
+    {
+        $safeIndex = max(1, $index);
+
+        return $taskMasterCode . '-' . str_pad((string) $safeIndex, 2, '0', STR_PAD_LEFT);
+    }
+
+    private function resolveNextTaskDetailIndex(TaskMaster $taskMaster): int
+    {
+        $nextIndex = 1;
+
+        $taskMaster->details()
+            ->withTrashed()
+            ->pluck('code')
+            ->each(function ($code) use (&$nextIndex, $taskMaster) {
+                if (! is_string($code)) {
+                    return;
+                }
+
+                if (preg_match('/^' . preg_quote($taskMaster->code, '/') . '-(\d+)$/', $code, $matches) !== 1) {
+                    return;
+                }
+
+                $candidate = ((int) $matches[1]) + 1;
+
+                if ($candidate > $nextIndex) {
+                    $nextIndex = $candidate;
+                }
+            });
+
+        return $nextIndex;
     }
 
     private function buildAttachmentPayloads(Request $request): array
