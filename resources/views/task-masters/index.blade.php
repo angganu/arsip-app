@@ -176,6 +176,12 @@
             background: rgba(59, 130, 246, 0.2);
         }
 
+        .task-card__dropdown .dropdown-item.dropdown-item-info:hover,
+        .task-card__dropdown .dropdown-item.dropdown-item-info:focus {
+            color: #e0f2fe;
+            background: rgba(14, 165, 233, 0.25);
+        }
+
         .task-card__dropdown .dropdown-divider {
             border-color: rgba(255, 255, 255, 0.15);
         }
@@ -354,13 +360,10 @@
                                 <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item dropdown-item-success">{{ __('texts.view') }}</a></li>
                                 <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
                                 <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
-                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
                                 <li>
-                                    <form action="{{ route('task-masters.archive', $task) }}" method="POST" class="ms-auto">
+                                    <form action="{{ route('task-masters.archive', $task) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-light">
-                                            <i class="fas fa-file-pdf"></i> {{ __('texts.archive') }}
-                                        </button>
+                                        <button type="submit" class="dropdown-item dropdown-item-info">{{ __('texts.archive') }}</button>
                                     </form>
                                 </li>
                                 <li>

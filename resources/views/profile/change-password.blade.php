@@ -8,6 +8,35 @@
         : route('admin.dashboard');
 @endphp
 
+@push('styles')
+    <style>
+        .password-field-wrap {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .password-toggle:hover,
+        .password-toggle:focus {
+            color: #e2e8f0;
+        }
+
+        .password-field-wrap .form-control {
+            padding-right: 2.5rem;
+        }
+    </style>
+@endpush
+
 @section('content')
     @include('partials.dashboard-nav', ['dashboardRoute' => $dashboardRoute, 'pageTitle' => __('texts.change_password')])
 
@@ -36,40 +65,79 @@
 
             <div>
                 <label for="current_password" class="form-label">{{ __('texts.current_password') }}</label>
-                <input
-                    id="current_password"
-                    name="current_password"
-                    type="password"
-                    class="form-control form-control-lg"
-                    required
-                >
+                <div class="password-field-wrap">
+                    <input
+                        id="current_password"
+                        name="current_password"
+                        type="password"
+                        class="form-control form-control-lg"
+                        required
+                    >
+                    <button type="button" class="password-toggle" data-target="current_password" aria-label="Show password">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
 
             <div>
                 <label for="password" class="form-label">{{ __('texts.new_password') }}</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="form-control form-control-lg"
-                    minlength="8"
-                    required
-                >
+                <div class="password-field-wrap">
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        class="form-control form-control-lg"
+                        minlength="8"
+                        required
+                    >
+                    <button type="button" class="password-toggle" data-target="password" aria-label="Show password">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
 
             <div>
                 <label for="password_confirmation" class="form-label">{{ __('texts.confirm_new_password') }}</label>
-                <input
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    class="form-control form-control-lg"
-                    minlength="8"
-                    required
-                >
+                <div class="password-field-wrap">
+                    <input
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        type="password"
+                        class="form-control form-control-lg"
+                        minlength="8"
+                        required
+                    >
+                    <button type="button" class="password-toggle" data-target="password_confirmation" aria-label="Show password">
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-app btn-lg w-100 mt-3">{{ __('texts.update_password') }}</button>
         </form>
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.password-toggle').forEach(function (toggleButton) {
+                toggleButton.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+
+                    if (!input || !icon) {
+                        return;
+                    }
+
+                    const isHidden = input.type === 'password';
+                    input.type = isHidden ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye', !isHidden);
+                    icon.classList.toggle('fa-eye-slash', isHidden);
+                    this.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                });
+            });
+        });
+    </script>
+@endpush

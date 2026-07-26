@@ -105,7 +105,7 @@ return [
     'new_task' => 'Tugas Baru',
     'on_progress' => 'Sedang Proses',
     'done' => 'Selesai',
-    'hold' => 'Tertunda',
+    'hold' => 'Tunda',
     'overtime' => 'Terlambat',
     'on_time' => 'Tepat Waktu',
     'all' => 'Semua',
