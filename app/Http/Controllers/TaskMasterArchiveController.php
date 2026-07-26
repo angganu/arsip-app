@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TaskCategory;
 use App\Models\TaskMaster;
 use App\Models\TaskMasterArchive;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -22,20 +24,129 @@ class TaskMasterArchiveController extends Controller
             abort(403, 'You do not have permission to access archive data.');
         }
 
+        $keyword = trim((string) $request->input('keyword', ''));
+        $planningStartDate = $this->parseFilterDate($request->input('planning_start_date'));
+        $planningEndDate = $this->parseFilterDate($request->input('planning_end_date'));
+        $realizationStartDate = $this->parseFilterDate($request->input('realization_start_date'));
+        $realizationEndDate = $this->parseFilterDate($request->input('realization_end_date'));
+        $taskCategoryId = (int) $request->input('task_category_id', 0);
+        $plannedBy = $isManager ? (int) $request->input('planned_by', 0) : (int) ($user?->id ?? 0);
+
+        if ($planningStartDate !== null && $planningEndDate !== null && $planningStartDate->greaterThan($planningEndDate)) {
+            [$planningStartDate, $planningEndDate] = [$planningEndDate->copy(), $planningStartDate->copy()];
+        }
+
+        if ($realizationStartDate !== null && $realizationEndDate !== null && $realizationStartDate->greaterThan($realizationEndDate)) {
+            [$realizationStartDate, $realizationEndDate] = [$realizationEndDate->copy(), $realizationStartDate->copy()];
+        }
+
+        $taskCategories = TaskCategory::query()->orderBy('name')->get(['id', 'name']);
+
+        if ($taskCategoryId > 0 && ! $taskCategories->pluck('id')->contains($taskCategoryId)) {
+            $taskCategoryId = 0;
+        }
+
+        $adminUsers = $isManager
+            ? User::query()
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'administrator');
+                })
+                ->orderBy('name')
+                ->get(['id', 'name'])
+            : collect([(object) [
+                'id' => (int) ($user?->id ?? 0),
+                'name' => (string) ($user?->name ?? ''),
+            ]]);
+
+        if ($isManager && $plannedBy > 0 && ! $adminUsers->pluck('id')->contains($plannedBy)) {
+            $plannedBy = 0;
+        }
+
         $archives = TaskMasterArchive::query()
-            ->with(['taskMaster:id,code,name,planned_by', 'taskMaster.planner:id,name', 'generator:id,name'])
+            ->with(['taskMaster:id,code,name,planned_by,task_category_id,date_planning_start,date_planning_finish,date_realization_start,date_realization_finish', 'taskMaster.planner:id,name', 'generator:id,name'])
             ->when(! $isManager && $isAdministrator, function ($query) use ($user) {
                 $query->whereHas('taskMaster', function ($taskQuery) use ($user) {
                     $taskQuery->where('planned_by', (int) $user->id);
                 });
             })
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->whereHas('taskMaster', function ($taskQuery) use ($keyword) {
+                    $taskQuery->where(function ($nested) use ($keyword) {
+                        $nested->where('code', 'like', "%{$keyword}%")
+                            ->orWhere('name', 'like', "%{$keyword}%");
+                    });
+                });
+            })
+            ->when($taskCategoryId > 0, function ($query) use ($taskCategoryId) {
+                $query->whereHas('taskMaster', function ($taskQuery) use ($taskCategoryId) {
+                    $taskQuery->where('task_category_id', $taskCategoryId);
+                });
+            })
+            ->when($plannedBy > 0, function ($query) use ($plannedBy) {
+                $query->whereHas('taskMaster', function ($taskQuery) use ($plannedBy) {
+                    $taskQuery->where('planned_by', $plannedBy);
+                });
+            })
+            ->when($planningStartDate !== null && $planningEndDate !== null, function ($query) use ($planningStartDate, $planningEndDate) {
+                $query->whereHas('taskMaster', function ($taskQuery) use ($planningStartDate, $planningEndDate) {
+                    $taskQuery->whereNotNull('date_planning_start')
+                        ->whereNotNull('date_planning_finish')
+                        ->whereDate('date_planning_start', '<=', $planningEndDate->toDateString())
+                        ->whereDate('date_planning_finish', '>=', $planningStartDate->toDateString());
+                });
+            })
+            ->when($realizationStartDate !== null && $realizationEndDate !== null, function ($query) use ($realizationStartDate, $realizationEndDate) {
+                $query->whereHas('taskMaster', function ($taskQuery) use ($realizationStartDate, $realizationEndDate) {
+                    $taskQuery->whereNotNull('date_realization_start')
+                        ->whereNotNull('date_realization_finish')
+                        ->whereDate('date_realization_start', '<=', $realizationEndDate->toDateString())
+                        ->whereDate('date_realization_finish', '>=', $realizationStartDate->toDateString());
+                });
+            })
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends($request->only([
+                'keyword',
+                'planning_start_date',
+                'planning_end_date',
+                'realization_start_date',
+                'realization_end_date',
+                'task_category_id',
+                'planned_by',
+            ]));
+
+        $planningStartDateInput = $planningStartDate?->format('Y-m-d') ?? (string) $request->input('planning_start_date', '');
+        $planningEndDateInput = $planningEndDate?->format('Y-m-d') ?? (string) $request->input('planning_end_date', '');
+        $realizationStartDateInput = $realizationStartDate?->format('Y-m-d') ?? (string) $request->input('realization_start_date', '');
+        $realizationEndDateInput = $realizationEndDate?->format('Y-m-d') ?? (string) $request->input('realization_end_date', '');
 
         return view('task-master-archives.index', [
             'archives' => $archives,
             'dashboardRoute' => $isManager ? route('manager.dashboard') : route('admin.dashboard'),
+            'keyword' => $keyword,
+            'planningStartDateInput' => $planningStartDateInput,
+            'planningEndDateInput' => $planningEndDateInput,
+            'realizationStartDateInput' => $realizationStartDateInput,
+            'realizationEndDateInput' => $realizationEndDateInput,
+            'taskCategoryId' => $taskCategoryId,
+            'taskCategories' => $taskCategories,
+            'plannedBy' => $plannedBy,
+            'adminUsers' => $adminUsers,
+            'isManager' => $isManager,
         ]);
+    }
+
+    private function parseFilterDate(mixed $value): ?Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function store(Request $request, TaskMaster $taskMaster)

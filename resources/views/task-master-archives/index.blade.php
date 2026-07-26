@@ -12,6 +12,64 @@
             </div>
         </div>
 
+        <div class="border rounded p-3 mb-3" style="border-color: rgba(255, 255, 255, 0.12) !important; background: rgba(15, 23, 42, 0.5);">
+            <form method="GET" action="{{ route('task-master-archives.index') }}" class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label for="keyword" class="form-label small text-light mb-1">{{ __('texts.keyword') }}</label>
+                    <input type="text" name="keyword" id="keyword" class="form-control form-control-sm" value="{{ old('keyword', $keyword ?? '') }}" placeholder="Code or name">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label for="planning_start_date" class="form-label small text-light mb-1">Planning start</label>
+                    <input type="date" name="planning_start_date" id="planning_start_date" class="form-control form-control-sm" value="{{ $planningStartDateInput ?? '' }}">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label for="planning_end_date" class="form-label small text-light mb-1">Planning finish</label>
+                    <input type="date" name="planning_end_date" id="planning_end_date" class="form-control form-control-sm" value="{{ $planningEndDateInput ?? '' }}">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label for="realization_start_date" class="form-label small text-light mb-1">Realization start</label>
+                    <input type="date" name="realization_start_date" id="realization_start_date" class="form-control form-control-sm" value="{{ $realizationStartDateInput ?? '' }}">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label for="realization_end_date" class="form-label small text-light mb-1">Realization finish</label>
+                    <input type="date" name="realization_end_date" id="realization_end_date" class="form-control form-control-sm" value="{{ $realizationEndDateInput ?? '' }}">
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="task_category_id" class="form-label small text-light mb-1">{{ __('texts.task_categories') }}</label>
+                    <select name="task_category_id" id="task_category_id" class="form-select form-select-sm">
+                        <option value="0">{{ __('texts.all_category') }}</option>
+                        @foreach (($taskCategories ?? collect()) as $taskCategory)
+                            <option value="{{ $taskCategory->id }}" {{ (int) ($taskCategoryId ?? 0) === (int) $taskCategory->id ? 'selected' : '' }}>
+                                {{ $taskCategory->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label for="planned_by" class="form-label small text-light mb-1">{{ __('texts.planned_by') }}</label>
+                    <select name="planned_by" id="planned_by" class="form-select form-select-sm">
+                        @if ($isManager ?? false)
+                            <option value="0">{{ __('texts.all_administrator') }}</option>
+                        @endif
+                        @foreach (($adminUsers ?? collect()) as $adminUser)
+                            <option value="{{ $adminUser->id }}" {{ (int) ($plannedBy ?? 0) === (int) $adminUser->id ? 'selected' : '' }}>{{ $adminUser->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2 d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('texts.apply') }}</button>
+                    <a href="{{ route('task-master-archives.index') }}" class="btn btn-outline-light btn-sm">{{ __('texts.reset') }}</a>
+                </div>
+            </form>
+        </div>
+
         @if (session('success'))
             <div class="alert alert-success py-2 px-3 mb-3">{{ session('success') }}</div>
         @endif
@@ -55,7 +113,7 @@
         </div>
 
         <div class="mt-3 d-flex justify-content-center">
-            {{ $archives->links('pagination::bootstrap-4') }}
+            {{ $archives->appends(['keyword' => $keyword ?? '', 'planning_start_date' => $planningStartDateInput ?? '', 'planning_end_date' => $planningEndDateInput ?? '', 'realization_start_date' => $realizationStartDateInput ?? '', 'realization_end_date' => $realizationEndDateInput ?? '', 'task_category_id' => $taskCategoryId ?? 0, 'planned_by' => $plannedBy ?? 0])->links('pagination::bootstrap-4') }}
         </div>
     </main>
 @endsection

@@ -40,6 +40,10 @@ class TaskMasterController extends Controller
 
         $keyword = trim((string) $request->input('keyword', ''));
         $status = $request->input('status');
+        $archived = (string) $request->input('archived', '0');
+        if (! in_array($archived, ['0', '1'], true)) {
+            $archived = '0';
+        }
         $taskCategoryId = (int) $request->input('task_category_id', 0);
         $startDate = $this->parseFilterDate($request->input('start_date'));
         $endDate = $this->parseFilterDate($request->input('end_date'));
@@ -111,6 +115,14 @@ class TaskMasterController extends Controller
             $query->where('has_schedule', $status === 'scheduled');
         }
 
+        if ($archived === '1') {
+            $query->where('archived', 1);
+        } else {
+            $query->where(function ($builder) {
+                $builder->where('archived', 0)->orWhereNull('archived');
+            });
+        }
+
         if ($startDate !== null && $endDate !== null) {
             $query->where(function ($builder) use ($startDate, $endDate) {
                 $builder->where(function ($nested) use ($startDate, $endDate) {
@@ -134,12 +146,12 @@ class TaskMasterController extends Controller
         }
 
         $tasks = $query->paginate($perPage)
-            ->appends($request->only(['per_page', 'keyword', 'status', 'sort_by', 'planned_by', 'task_category_id', 'start_date', 'end_date']));
+            ->appends($request->only(['per_page', 'keyword', 'status', 'archived', 'sort_by', 'planned_by', 'task_category_id', 'start_date', 'end_date']));
 
         $startDateInput = $startDate?->format('Y-m-d') ?? (string) $request->input('start_date', '');
         $endDateInput = $endDate?->format('Y-m-d') ?? (string) $request->input('end_date', '');
 
-        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'sortBy', 'plannedBy', 'taskCategoryId', 'taskCategories', 'adminUsers', 'isManager', 'startDateInput', 'endDateInput'));
+        return view('task-masters.index', compact('tasks', 'perPage', 'keyword', 'status', 'archived', 'sortBy', 'plannedBy', 'taskCategoryId', 'taskCategories', 'adminUsers', 'isManager', 'startDateInput', 'endDateInput'));
     }
 
     private function parseFilterDate(mixed $value): ?Carbon

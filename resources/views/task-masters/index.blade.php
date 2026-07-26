@@ -264,6 +264,14 @@
                     </select>
                 </div>
 
+                <div class="col-12 col-md-2">
+                    <label for="archived" class="form-label small text-light mb-1">Archive</label>
+                    <select name="archived" id="archived" class="form-select form-select-sm">
+                        <option value="0" {{ ($archived ?? '0') === '0' ? 'selected' : '' }}>False</option>
+                        <option value="1" {{ ($archived ?? '0') === '1' ? 'selected' : '' }}>True</option>
+                    </select>
+                </div>
+
                 <div class="col-6 col-md-2">
                     <label for="start_date" class="form-label small text-light mb-1">{{ __('texts.start_date') }}</label>
                     <input type="date" name="start_date" id="start_date" class="form-control form-control-sm" value="{{ $startDateInput ?? '' }}">
@@ -323,6 +331,20 @@
                     $totalDetails = (int) ($task->details_count ?? 0);
                     $doneDetails = (int) ($task->done_details_count ?? 0);
                     $unreadDiscussions = (int) ($task->unread_discussions_count ?? 0);
+                    $statusLabels = [
+                        0 => 'new',
+                        1 => 'on progress',
+                        2 => 'done',
+                        3 => 'hold',
+                    ];
+                    $statusBadgeClasses = [
+                        0 => 'bg-secondary',
+                        1 => 'bg-primary',
+                        2 => 'bg-success',
+                        3 => 'bg-warning text-dark',
+                    ];
+                    $statusLabel = $statusLabels[(int) $task->status] ?? '-';
+                    $statusBadgeClass = $statusBadgeClasses[(int) $task->status] ?? 'bg-secondary';
                     $progressPercent = $totalDetails > 0 ? (int) round(($doneDetails / $totalDetails) * 100) : 0;
                     $progressPercent = max(0, min(100, $progressPercent));
                     $progressColor = $progressPercent === 100 ? '#22c55e' : ($progressPercent > 0 ? '#3b82f6' : '#64748b');
@@ -343,6 +365,14 @@
 
                     <div class="task-card__grid">
                         <div><strong>{{ $task->name }}</strong></div>
+                        <div>
+                            <strong>Status:</strong>
+                            <span class="badge {{ $statusBadgeClass }} text-uppercase">{{ $statusLabel }}</span>
+                            @if ((int) ($task->archived ?? 0) === 1)
+                                <span class="badge bg-warning text-dark text-uppercase">archived</span>
+                            @endif
+                        </div>
+                        
                         <div><strong>{{ __('texts.planning') }}:</strong> {{ optional($task->date_planning_start)->format('Y-m-d') ?: __('texts.none') }} to {{ optional($task->date_planning_finish)->format('Y-m-d') ?: __('texts.none') }}</div>
                         <div><strong>{{ __('texts.duration') }}:</strong> {{ $task->duration_planning ?? 0 }} {{ __('texts.day_suffix') }}</div>
                         <div><strong>{{ __('texts.interval') }}:</strong> {{ $task->has_schedule ? __('texts.every').' '. $task->interval_value.' '.$intervalLabels[$task->interval_schedule] : __('texts.no_schedule') }}</div>
@@ -405,7 +435,7 @@
 
         <div class="mt-3 d-flex justify-content-center">
             <div class="pagination-dark">
-                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'sort_by' => $sortBy ?? 'latest', 'planned_by' => $plannedBy ?? 0, 'task_category_id' => $taskCategoryId ?? 0, 'start_date' => $startDateInput ?? '', 'end_date' => $endDateInput ?? ''])->links('pagination::bootstrap-4') }}
+                {{ $tasks->appends(['per_page' => $perPage, 'keyword' => $keyword ?? '', 'status' => $status ?? '', 'archived' => $archived ?? '0', 'sort_by' => $sortBy ?? 'latest', 'planned_by' => $plannedBy ?? 0, 'task_category_id' => $taskCategoryId ?? 0, 'start_date' => $startDateInput ?? '', 'end_date' => $endDateInput ?? ''])->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </main>
