@@ -393,14 +393,12 @@
                                     <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
                                     @endif
                                 @endif
-                                @if($task->archived != 1)
                                 <li>
                                     <form action="{{ route('task-masters.archive', $task) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item dropdown-item-secondary">{{ __('texts.archive') }}</button>
                                     </form>
                                 </li>
-                                @endif
                                 @if($task->status != 2)
                                 <li>
                                     <form action="{{ route('task-masters.hold', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_hold', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">

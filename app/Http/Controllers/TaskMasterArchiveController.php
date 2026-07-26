@@ -206,7 +206,7 @@ class TaskMasterArchiveController extends Controller
         ]);
 
         $taskMaster->update([
-            'status' => 2,
+            // 'status' => 2,
             'archived' => 1,
         ]);
 
