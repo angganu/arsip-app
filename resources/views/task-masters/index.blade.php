@@ -350,7 +350,6 @@
                     </div>
 
                     <hr>
-                    @if ($isManager ?? false)
                     <div class="task-card__actions">
                         <div class="dropdown task-card__dropdown">
                             <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -358,21 +357,29 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a href="{{ route('task-masters.show', $task) }}" class="dropdown-item dropdown-item-success">{{ __('texts.view') }}</a></li>
-                                <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>
-                                <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
+                                @if ($isManager ?? false)
+                                @if($task->status != 2)
+                                    <li><a href="{{ route('task-masters.edit', $task) }}" class="dropdown-item dropdown-item-warning">{{ __('texts.manage') }}</a></li>   
+                                    <li><a href="{{ route('task-masters.details.create', $task) }}" class="dropdown-item dropdown-item-primary">{{ __('texts.task_detail_add_button') }}</a></li>
+                                    @endif
+                                @endif
+                                @if($task->archived != 1)
                                 <li>
                                     <form action="{{ route('task-masters.archive', $task) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="dropdown-item dropdown-item-info">{{ __('texts.archive') }}</button>
+                                        <button type="submit" class="dropdown-item dropdown-item-secondary">{{ __('texts.archive') }}</button>
                                     </form>
                                 </li>
+                                @endif
+                                @if($task->status != 2)
                                 <li>
                                     <form action="{{ route('task-masters.hold', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_hold', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="dropdown-item dropdown-item-secondary">{{ __('texts.hold') }}</button>
+                                        <button type="submit" class="dropdown-item dropdown-item-danger">{{ __('texts.hold') }}</button>
                                     </form>
                                 </li>
+                                @endif
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('task-masters.destroy', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
@@ -390,31 +397,6 @@
                             @endif
                         </a>
                     </div>
-                    @else
-                    <div class="task-card__actions">
-                        <a href="{{ route('task-masters.show', $task) }}" class="btn btn-sm btn-outline-success">{{ __('texts.view') }}</a>
-                        
-                        <!-- <a href="{{ route('task-masters.edit', $task) }}" class="btn btn-sm btn-outline-warning">{{ __('texts.manage') }}</a> -->
-                        <!-- <a href="{{ route('task-masters.details.create', $task) }}" class="btn btn-sm btn-outline-primary">{{ __('texts.task_detail_add_button') }}</a> -->
-                        <form action="{{ route('task-masters.destroy', $task) }}" method="POST" data-confirm-message="{{ __('texts.confirm_delete', ['name' => $task->name]) }}" onsubmit="return confirm(this.dataset.confirmMessage)">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-outline-danger">{{ __('texts.delete') }}</button>
-                        </form>
-                        <form action="{{ route('task-masters.archive', $task) }}" method="POST" class="ms-auto">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-light">
-                                <i class="fas fa-file-pdf"></i> {{ __('texts.archive') }}
-                            </button>
-                        </form>
-                        <a href="{{ route('task-masters.discussion.index', $task) }}" class="btn btn-sm btn-outline-info">
-                            {{ __('texts.chat') }}
-                            @if ($unreadDiscussions > 0)
-                                <span class="chat-count">{{ $unreadDiscussions }}</span>
-                            @endif
-                        </a>
-                    </div>
-                    @endif
                 </div>
             @empty
                 <div class="text-center text-light-emphasis py-3">{{ __('texts.no_documents_found') }}</div>

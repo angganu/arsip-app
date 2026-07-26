@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TaskMaster;
 use App\Models\TaskMasterArchive;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -64,7 +65,7 @@ class TaskMasterArchiveController extends Controller
 
         $intervalLabel = $this->getIntervalLabel((int) $taskMaster->interval_schedule);
 
-        $pdf = app('dompdf.wrapper')->loadView('task-masters.archive-pdf', [
+        $pdf = Pdf::loadView('task-masters.archive-pdf', [
             'taskMaster' => $taskMaster,
             'intervalLabel' => $intervalLabel,
             'generatedAt' => now(),
@@ -94,6 +95,7 @@ class TaskMasterArchiveController extends Controller
         ]);
 
         $taskMaster->update([
+            'status' => 2,
             'archived' => 1,
         ]);
 
