@@ -55,10 +55,11 @@ class TaskDetailController extends Controller
         // Kirim WA Disini
         $taskMaster['category'] = TaskCategory::find($taskMaster->category_id);
         app(\App\Services\WahaService::class)->sendNewWoNotification($wahaPayload = [
-            'phone' => '6282266886804',
+            'phone' => '6287843256702',
             'taskMaster' => $taskMaster->toArray(),
             'taskDetail' => $taskDetail->toArray()
         ]);
+        dd("RE");
 
         foreach ($this->buildAttachmentPayloads($request) as $attachmentPayload) {
             $taskDetail->attachments()->create([
