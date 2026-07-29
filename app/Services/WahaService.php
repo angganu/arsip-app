@@ -654,7 +654,7 @@ class WahaService
         $taskDetailCode = $taskDetail['code'] ?? '-';
         $taskDetailName = $taskDetail['activity'] ?? '-';
         // $taskMasterDesc = $taskMaster['description'] ?? '-';
-        $taskDetailTime = date('d M Y H:i', strtotime($taskDetail['date_realization_start'])) .' - '. date('d M Y H:i', strtotime($taskDetail['date_realization_finish']));
+        $taskDetailTime = date('d M Y', strtotime($taskDetail['date_realization_start'])) .' - '. date('d M Y', strtotime($taskDetail['date_realization_finish']));
 
         return "*Kode:* {$taskDetailCode}\n" .
                "*Kategori:* {$taskMasterCategory}\n" .
