@@ -53,7 +53,8 @@ class TaskDetailController extends Controller
         $this->syncTaskMasterStatus($taskMaster);
 
         // Kirim WA Disini
-        $taskMaster['category'] = TaskCategory::find($taskMaster->category_id);
+        $taskMaster['category'] = TaskCategory::find($taskMaster->task_category_id);
+        dd($taskMaster);
         app(\App\Services\WahaService::class)->sendNewWoNotification($wahaPayload = [
             'phone' => '6287843256702',
             'taskMaster' => $taskMaster->toArray(),
