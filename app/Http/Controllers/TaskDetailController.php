@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TaskAttachment;
+use App\Models\TaskCategory;
 use App\Models\TaskDetail;
 use App\Models\TaskMaster;
 use Carbon\Carbon;
@@ -50,6 +51,14 @@ class TaskDetailController extends Controller
         ]);
 
         $this->syncTaskMasterStatus($taskMaster);
+
+        // Kirim WA Disini
+        $taskMaster['category'] = TaskCategory::find($taskMaster->category_id);
+        app(\App\Services\WahaService::class)->sendNewWoNotification($wahaPayload = [
+            'phone' => '6282266886804',
+            'taskMaster' => $taskMaster->toArray(),
+            'taskDetail' => $taskDetail->toArray()
+        ]);
 
         foreach ($this->buildAttachmentPayloads($request) as $attachmentPayload) {
             $taskDetail->attachments()->create([
